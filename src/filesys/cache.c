@@ -17,15 +17,23 @@ cache_block {
     struct list_elem elem;
 
     struct block * block;
-    block_sector_t disk_sector;
+    block_sector_t * disk_sector;
 
     bool in_use;
     bool accessed;
-    bool free;
     bool dirty;
 };
 
 static struct list cache_all_blocks;
+
+struct cache_block *
+get_new_cache_block() {
+    struct cache_block * c_block = malloc(sizeof * cache_block);
+    c_block->in_use = false;
+    c_block->accessed = false;
+    c_block->dirty = false;
+    return c_block;
+}
 
 void
 cache_init() {
@@ -64,6 +72,8 @@ cache_evict() {
         } else {
             // evict
             cache_write_back(c_block);
+            list_remove(head);
+            break;
         }
         
         head = list_next(head);
@@ -71,20 +81,27 @@ cache_evict() {
 }
 
 struct cache_block *
-cache_get_free_block() {
+cache_get_block(block_sector_t * d_sector) {
     struct list_elem * head = list_front(&cache_all_blocks);
     struct cache_block *c_block;
 
     while(head != NULL) {
         c_block = list_entry (head, struct cache_block, elem);
-        if(c_block->free) // Found and return
+        if(c_block->disk_sector == d_sector) {
             return c_block;
-        
+        }
+
         head = list_next(head);
     }
 
-    // If come here then there is no free block available, evict
-    cache_evict();
+    // If come here then there is no free block available, evict, then cache item
+    while(list_size(&cache_all_blocks) >= CACHE_CAPACITY) {
+        cache_evict();
+    }
+
+    struct cache_block * new_elem = get_new_cache_block();
+    new_elem->disk_sector = d_sector;
+    list_push_back(&cache_all_blocks, &new_elem->elem);
+
+    return new_elem;
 }
-
-
