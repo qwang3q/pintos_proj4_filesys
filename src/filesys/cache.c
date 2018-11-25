@@ -103,7 +103,7 @@ cache_evict(void) {
   }
 }
 
-struct int
+int
 cache_get_block(block_sector_t d_sector) {
   lock_acquire(&cache_lock);
 
