@@ -35,9 +35,9 @@ cache_init(void) {
 
 void
 maintenance_job(void) {
-  while(true)
+  while(1)
   {
-      timer_sleep(4 * TIMER_FREQ);
+      timer_sleep(TIMER_FREQ);
       cache_flush();
   }
 }
@@ -111,12 +111,15 @@ struct cache_block * cache_get_block(block_sector_t d_sector) {
   if(i_target_block == -1) {
     // If come here the block is not in cache yet, obtain a free block
     i_target_block = cache_get_free_block();
-  }
 
-  while(i_target_block == -1) {
-    // If come here then there is no free block available, evict, then cache item
-    cache_evict();
-    i_target_block = cache_get_free_block();
+    while(i_target_block == -1) {
+      // If come here then there is no free block available, evict, then cache item
+      cache_evict();
+      i_target_block = cache_get_free_block();
+    }
+
+    // This is a free block, load it with data
+    block_read(fs_device, cache_all_blocks[i_target_block].disk_sector, &cache_all_blocks[i_target_block];
   }
 
   cache_all_blocks[i_target_block].disk_sector = d_sector;
