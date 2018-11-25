@@ -32,11 +32,11 @@ cache_init(void) {
   }
 
   // Set up a maintenance thread cleaning up
-  thread_create("cache_maintenance_job", 0, maintenance_job, NULL);
+  thread_create("cache_maintenance_job", 0, cache_maintenance_job, NULL);
 }
 
 void
-maintenance_job(void) {
+cache_maintenance_job(void) {
   while(1)
   {
       timer_sleep(TIMER_FREQ);
@@ -107,7 +107,7 @@ struct cache_block * cache_get_block(block_sector_t d_sector) {
   int i_target_block = -1;
   int i_block;
   for(i_block = 0; i_block < CACHE_CAPACITY; i_block++) {
-    if(cache_all_blocks[i_block].disk_sector == d_sector) {
+    if(cache_all_blocks[i_block].disk_sector == d_sector && !cache_all_blocks[i_block].free) {
       i_target_block = i_block;
       break;
     }
