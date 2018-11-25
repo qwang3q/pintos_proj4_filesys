@@ -82,7 +82,7 @@ cache_get_block(block_sector_t d_sector) {
         head = list_begin(&cache_all_blocks);
         struct cache_block *c_block;
 
-        while(1) {
+        while(head != NULL) {
             c_block = list_entry (head, struct cache_block, elem);
             if(c_block->disk_sector == d_sector) {
                 return c_block;
