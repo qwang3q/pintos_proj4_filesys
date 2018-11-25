@@ -222,10 +222,16 @@ inode_read_at (struct inode *inode, void *buffer_, off_t size, off_t offset)
         break;
 
       // CHANGE: Read from cache
-      struct cache_block * c_block = cache_get_block(sector_idx);
-      memcpy(buffer + bytes_read, c_block->block + sector_ofs, chunk_size);
+      int cache_idx = access_cache_entry(sector_idx, false);
+      memcpy(buffer + bytes_read, cache_array[cache_idx].block + sector_ofs,
+       chunk_size);
+      cache_array[cache_idx].accessed = true;
+      cache_array[cache_idx].open_cnt--;
 
-      c_block->accessed = true;
+      // struct cache_block * c_block = cache_get_block(sector_idx);
+      // memcpy(buffer + bytes_read, c_block->block + sector_ofs, chunk_size);
+
+      // c_block->accessed = true;
 
       // if (sector_ofs == 0 && chunk_size == BLOCK_SECTOR_SIZE)
       //   {
@@ -289,10 +295,16 @@ inode_write_at (struct inode *inode, const void *buffer_, off_t size,
         break;
 
       // CHANGE: use block cache for writing
-      struct cache_block * c_block = cache_get_block(sector_idx);
-      memcpy(c_block->block + sector_ofs, buffer + bytes_written, chunk_size);
-      c_block->accessed = true;
-      c_block->dirty = true;
+      int cache_idx = access_cache_entry(sector_idx, true);
+      memcpy(cache_array[cache_idx].block + sector_ofs, buffer + bytes_written, chunk_size);
+      cache_array[cache_idx].accessed = true;
+      cache_array[cache_idx].dirty = true;
+      cache_array[cache_idx].open_cnt--;
+
+      // struct cache_block * c_block = cache_get_block(sector_idx);
+      // memcpy(c_block->block + sector_ofs, buffer + bytes_written, chunk_size);
+      // c_block->accessed = true;
+      // c_block->dirty = true;
 
       // if (sector_ofs == 0 && chunk_size == BLOCK_SECTOR_SIZE)
       //   {
