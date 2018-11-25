@@ -23,6 +23,8 @@ new_cache_block(int i_block) {
 
 void
 cache_init(void) {
+  lock_init(&cache_lock);
+
   // Initialize cache
   int i_block;
   for(i_block = 0; i_block < CACHE_CAPACITY; i_block++) {
@@ -70,6 +72,7 @@ cache_write_back(int i_block) {
 
 void 
 cache_flush(void) {
+  lock_acquire(&cache_lock);
   int i_block;
   for(i_block = 0; i_block < CACHE_CAPACITY; i_block++) {
     if(cache_all_blocks[i_block].dirty == true) {
@@ -77,6 +80,8 @@ cache_flush(void) {
       cache_all_blocks[i_block].dirty = false;
     }
   }
+
+  lock_release(&cache_lock);
 }
 
 // Clock algorithm evicting cache
@@ -99,6 +104,7 @@ cache_evict(void) {
 }
 
 struct cache_block * cache_get_block(block_sector_t d_sector) {
+  lock_acquire(&cache_lock);
   int i_target_block = -1;
   int i_block;
   for(i_block = 0; i_block < CACHE_CAPACITY; i_block++) {
@@ -126,6 +132,8 @@ struct cache_block * cache_get_block(block_sector_t d_sector) {
   cache_all_blocks[i_target_block].free = false;
   cache_all_blocks[i_target_block].c_in_use++;
   cache_all_blocks[i_target_block].accessed = true;
+
+  lock_release(&cache_lock);
 
   return &cache_all_blocks[i_target_block];;
 }

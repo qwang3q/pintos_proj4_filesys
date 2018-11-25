@@ -4,6 +4,7 @@
 #define CACHE_CAPACITY 64
 
 #include "devices/block.h"
+#include "threads/synch.h"
 
 struct cache_block {
     uint8_t block[BLOCK_SECTOR_SIZE];
@@ -14,6 +15,8 @@ struct cache_block {
     bool accessed;
     bool dirty;
 };
+
+struct lock cache_lock;
 
 struct cache_block cache_all_blocks[CACHE_CAPACITY];
 
