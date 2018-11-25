@@ -36,7 +36,7 @@ cache_init(void) {
 }
 
 void
-cache_maintenance_job(void) {
+cache_maintenance_job(void *aux UNUSED) {
   while(1)
   {
       timer_sleep(TIMER_FREQ);
