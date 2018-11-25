@@ -15,7 +15,7 @@ static struct list cache_all_blocks;
 
 struct cache_block *
 get_new_cache_block(void) {
-    struct cache_block * cache_block = malloc (sizeof * cache_block);
+    struct cache_block * cache_block = malloc (sizeof (struct  cache_block));
     cache_block->in_use = false;
     cache_block->accessed = false;
     cache_block->dirty = false;
