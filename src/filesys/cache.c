@@ -8,24 +8,23 @@ Cache file blocks, 64 sectors in total
 
 #include "devices/block.h"
 #include "filesys/filesys.h"
-#include "lib/kernel/list.h"
 #include "filesys/cache.h"
 
-static struct list cache_all_blocks;
-
-struct cache_block *
-get_new_cache_block(void) {
-    struct cache_block * cache_block = malloc (sizeof (struct  cache_block));
-    cache_block->in_use = false;
-    cache_block->accessed = false;
-    cache_block->dirty = false;
-    return cache_block;
+void
+new_cache_block(int i_block) {
+    struct cache_block c_block = cache_all_blocks[i_block];
+    c_block.free = true;
+    c_block.in_use = false;
+    c_block.accessed = false;
+    c_block.dirty = false;
 }
 
 void
 cache_init(void) {
-    // Initialize cache
-    list_init (&cache_all_blocks);
+  // Initialize cache
+  for(int i_block = 0; i_block < CACHE_CAPACITY; i_block++) {
+    new_cache_block(i_block);
+  }
 }
 
 void
@@ -33,93 +32,87 @@ cache_mark_block_dirty(struct cache_block * c_block) {
     c_block->dirty = true;
 }
 
+int
+cache_get_free_block(void) {
+  struct cache_block c_block;
+  for(int i_block = 0; i_block < CACHE_CAPACITY; i_block++) {
+    c_block = cache_all_blocks[i_block];
+    if(c_block.free == true) {
+      return i_block;
+    }
+  }
+
+  return -1;
+}
+
 void 
-cache_write_back(struct cache_block * c_block) {
-    if(!c_block->dirty)
+cache_write_back(struct cache_block c_block) {
+    if(!c_block.dirty)
         return;
     
     // TODO: write back to disk
-    block_write(fs_device, c_block->disk_sector, c_block->block);
+    block_write(fs_device, c_block.disk_sector, c_block.block);
 }
 
 void 
 cache_flush(void) {
-    struct list_elem *head;
-    struct cache_block *c_block;
-
-    if(!list_empty(&cache_all_blocks)) {
-        for (head = list_begin (&cache_all_blocks); head != NULL && head != list_end (&cache_all_blocks); head = list_next (head)) {
-            c_block = list_entry (head, struct cache_block, elem);
-            if(c_block->dirty == true) {
-                cache_write_back(c_block);
-                c_block->dirty = false;
-            }
-        }
+  struct cache_block c_block;
+  for(int i_block = 0; i_block < CACHE_CAPACITY; i_block++) {
+    c_block = cache_all_blocks[i_block];
+    if(c_block.dirty == true) {
+      cache_write_back(c_block);
+      c_block.dirty = false;
     }
+  }
 }
 
 // Clock algorithm evicting cache
 void
 cache_evict(void) {
-    if(list_empty(&cache_all_blocks))
-        return;
+  struct cache_block c_block;
+  for(int i_block = 0; i_block < CACHE_CAPACITY; i_block++) {
+    c_block = cache_all_blocks[i_block];
 
-    struct list_elem * head;
-    struct cache_block *c_block;
-
-    head = list_begin (&cache_all_blocks);
-
-    while(head != NULL) {
-        c_block = list_entry (head, struct cache_block, elem);
-        if(c_block->in_use)
-            continue;
-        
-        if(c_block->accessed) {
-            // Give it second chance
-            c_block->accessed = false;
-        } else {
-            // evict
-            cache_write_back(c_block);
-            if(head == list_end(&cache_all_blocks)) {
-                list_empty(&cache_all_blocks);
-            } else {
-                list_remove(head);
-            }
-            break;
-        }
-
-        if(head == NULL || head == list_end (&cache_all_blocks)) {
-            break;
-        } 
-        
-        head = list_next (head);
+    if(c_block.in_use)
+        continue;
+    
+    if(c_block.accessed) {
+        // Give it second chance
+        c_block.accessed = false;
+    } else {
+        // evict
+        cache_write_back(c_block);
+        new_cache_block(i_block);
     }
+  }
 }
 
-struct cache_block *
-cache_get_block(block_sector_t d_sector) {
-    struct list_elem *head;
+struct cache_block cache_get_block(block_sector_t d_sector) {
+  struct cache_block c_block;
+  int i_target_block = -1;
+  bool found = false;
 
-    if(!list_empty(&cache_all_blocks)) {
-        struct cache_block *c_block;
+  while(i_target_block == -1) {
+    for(int i_block = 0; i_block < CACHE_CAPACITY; i_block++) {
+      c_block = cache_all_blocks[i_block];
 
-        for (head = list_begin (&cache_all_blocks); head != NULL && head != list_end (&cache_all_blocks); head = list_next (head)) {
-            c_block = list_entry (head, struct cache_block, elem);
-            if(c_block->disk_sector == d_sector) {
-                return c_block;
-            }
-        }
+      if(c_block.disk_sector == d_sector) {
+        i_target_block = i_block;
+        break;
+      }
     }
 
-    // If come here then there is no free block available, evict, then cache item
-    while(!list_empty(&cache_all_blocks) && list_size(&cache_all_blocks) >= CACHE_CAPACITY) {
-        cache_evict();
+    if(i_target_block == -1) {
+      // If come here then there is no free block available, evict, then cache item
+      cache_evict();
+      int i_target_block = cache_get_free_block();
     }
+  }
 
-    struct cache_block * new_elem = get_new_cache_block();
-    new_elem->disk_sector = d_sector;
-    new_elem->accessed = true;
-    list_push_back(&cache_all_blocks, &new_elem->elem);
+  struct cache_block target_c_block = cache_all_blocks[i_target_block];
+  target_c_block.disk_sector = d_sector;
+  target_c_block.free = false;
+  target_c_block.accessed = true;
 
-    return new_elem;
+  return target_c_block;
 }
