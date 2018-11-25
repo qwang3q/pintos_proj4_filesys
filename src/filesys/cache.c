@@ -85,20 +85,23 @@ cache_evict(void) {
 
 struct cache_block * cache_get_block(block_sector_t d_sector) {
   int i_target_block = -1;
-  while(i_target_block == -1) {
-    int i_block;
-    for(i_block = 0; i_block < CACHE_CAPACITY; i_block++) {
-      if(cache_all_blocks[i_block].disk_sector == d_sector) {
-        i_target_block = i_block;
-        break;
-      }
+  int i_block;
+  for(i_block = 0; i_block < CACHE_CAPACITY; i_block++) {
+    if(cache_all_blocks[i_block].disk_sector == d_sector) {
+      i_target_block = i_block;
+      break;
     }
+  }
 
-    if(i_target_block == -1) {
-      // If come here then there is no free block available, evict, then cache item
-      cache_evict();
-      i_target_block = cache_get_free_block();
-    }
+  if(i_target_block == -1) {
+    // If come here the block is not in cache yet, obtain a free block
+    i_target_block = cache_get_free_block();
+  }
+
+  while(i_target_block == -1) {
+    // If come here then there is no free block available, evict, then cache item
+    cache_evict();
+    i_target_block = cache_get_free_block();
   }
 
   cache_all_blocks[i_target_block].disk_sector = d_sector;
