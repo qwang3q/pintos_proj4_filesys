@@ -110,7 +110,7 @@ struct cache_block cache_get_block(block_sector_t d_sector) {
     if(i_target_block == -1) {
       // If come here then there is no free block available, evict, then cache item
       cache_evict();
-      int i_target_block = cache_get_free_block();
+      i_target_block = cache_get_free_block();
     }
   }
 
