@@ -42,6 +42,22 @@ cache_write_back(struct cache_block * c_block) {
     block_write(fs_device, c_block->disk_sector, c_block->block);
 }
 
+void 
+cache_flush(void) {
+    struct list_elem *head;
+    struct cache_block *c_block;
+
+    if(!list_empty(&cache_all_blocks)) {
+        for (head = list_begin (&cache_all_blocks); head != NULL && head != list_end (&cache_all_blocks); head = list_next (head)) {
+            c_block = list_entry (head, struct cache_block, elem);
+            if(c_block->dirty == true) {
+                cache_write_back(c_block);
+                c_block->dirty = false;
+            }
+        }
+    }
+}
+
 // Clock algorithm evicting cache
 void
 cache_evict(void) {
