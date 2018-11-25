@@ -14,7 +14,7 @@ Cache file blocks, 64 sectors in total
 static struct list cache_all_blocks;
 
 struct cache_block *
-get_new_cache_block() {
+get_new_cache_block(void) {
     struct cache_block * c_block = malloc(sizeof * cache_block);
     c_block->in_use = false;
     c_block->accessed = false;
@@ -23,7 +23,7 @@ get_new_cache_block() {
 }
 
 void
-cache_init() {
+cache_init(void) {
     // Initialize cache
     list_init (&cache_all_blocks);
 }
@@ -44,7 +44,7 @@ cache_write_back(struct cache_block * c_block) {
 
 // Clock algorithm evicting cache
 void
-cache_evict() {
+cache_evict(void) {
     struct list_elem * head = list_front(&cache_all_blocks);
     struct cache_block *c_block;
 
