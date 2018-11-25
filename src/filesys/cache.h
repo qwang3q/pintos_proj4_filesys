@@ -1,7 +1,7 @@
+#define CACHE_CAPACITY 64
+
 #include "devices/block.h"
 #include "lib/kernel/list.h"
-
-#define CACHE_CAPACITY 64
 
 struct cache_block {
     struct list_elem elem;
