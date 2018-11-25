@@ -54,6 +54,7 @@ cache_get_free_block(void) {
   int i_block;
   for(i_block = 0; i_block < CACHE_CAPACITY; i_block++) {
     if(cache_all_blocks[i_block].free == true) {
+      ache_all_blocks[i_block].free = true;
       return i_block;
     }
   }
