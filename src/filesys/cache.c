@@ -45,7 +45,7 @@ cache_write_back(struct cache_block * c_block) {
 // Clock algorithm evicting cache
 void
 cache_evict(void) {
-    struct list_elem * head = list_front(&cache_all_blocks);
+    struct list_elem * head = list_begin(&cache_all_blocks);
     struct cache_block *c_block;
 
     while(head != NULL) {
@@ -63,7 +63,7 @@ cache_evict(void) {
             break;
         }
 
-        if(head == list_tail(&cache_all_blocks)) {
+        if(head == list_end(&cache_all_blocks)) {
             break;
         }
         
@@ -73,7 +73,7 @@ cache_evict(void) {
 
 struct cache_block *
 cache_get_block(block_sector_t d_sector) {
-    struct list_elem * head = list_front(&cache_all_blocks);
+    struct list_elem * head = list_begin(&cache_all_blocks);
     struct cache_block *c_block;
 
     while(head != NULL) {
@@ -82,7 +82,7 @@ cache_get_block(block_sector_t d_sector) {
             return c_block;
         }
         
-        if(head == list_tail(&cache_all_blocks)) {
+        if(head == list_end(&cache_all_blocks)) {
             break;
         }
 
