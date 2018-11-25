@@ -29,6 +29,6 @@ void cache_write_back(int i_block);
 void cache_flush(void);
 // Clock algorithm evicting cache
 void cache_evict(void); 
-struct cache_block * cache_get_block(block_sector_t d_sector);
+int cache_get_block(block_sector_t d_sector);
 
 #endif
