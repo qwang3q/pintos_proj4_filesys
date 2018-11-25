@@ -22,7 +22,8 @@ new_cache_block(int i_block) {
 void
 cache_init(void) {
   // Initialize cache
-  for(int i_block = 0; i_block < CACHE_CAPACITY; i_block++) {
+  int i_block;
+  for(i_block = 0; i_block < CACHE_CAPACITY; i_block++) {
     new_cache_block(i_block);
   }
 }
@@ -35,7 +36,8 @@ cache_mark_block_dirty(struct cache_block * c_block) {
 int
 cache_get_free_block(void) {
   struct cache_block c_block;
-  for(int i_block = 0; i_block < CACHE_CAPACITY; i_block++) {
+  int i_block;
+  for(i_block = 0; i_block < CACHE_CAPACITY; i_block++) {
     c_block = cache_all_blocks[i_block];
     if(c_block.free == true) {
       return i_block;
@@ -57,7 +59,8 @@ cache_write_back(struct cache_block c_block) {
 void 
 cache_flush(void) {
   struct cache_block c_block;
-  for(int i_block = 0; i_block < CACHE_CAPACITY; i_block++) {
+  int i_block;
+  for(i_block = 0; i_block < CACHE_CAPACITY; i_block++) {
     c_block = cache_all_blocks[i_block];
     if(c_block.dirty == true) {
       cache_write_back(c_block);
@@ -70,7 +73,8 @@ cache_flush(void) {
 void
 cache_evict(void) {
   struct cache_block c_block;
-  for(int i_block = 0; i_block < CACHE_CAPACITY; i_block++) {
+  int i_block;
+  for(i_block = 0; i_block < CACHE_CAPACITY; i_block++) {
     c_block = cache_all_blocks[i_block];
 
     if(c_block.in_use)
@@ -93,7 +97,8 @@ struct cache_block cache_get_block(block_sector_t d_sector) {
   bool found = false;
 
   while(i_target_block == -1) {
-    for(int i_block = 0; i_block < CACHE_CAPACITY; i_block++) {
+    int i_block;
+    for(i_block = 0; i_block < CACHE_CAPACITY; i_block++) {
       c_block = cache_all_blocks[i_block];
 
       if(c_block.disk_sector == d_sector) {
