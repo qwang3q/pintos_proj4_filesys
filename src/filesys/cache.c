@@ -68,7 +68,7 @@ cache_evict(void) {
 }
 
 struct cache_block *
-cache_get_block(block_sector_t * d_sector) {
+cache_get_block(block_sector_t d_sector) {
     struct list_elem * head = list_front(&cache_all_blocks);
     struct cache_block *c_block;
 

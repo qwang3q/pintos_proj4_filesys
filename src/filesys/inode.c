@@ -222,7 +222,7 @@ inode_read_at (struct inode *inode, void *buffer_, off_t size, off_t offset)
         break;
 
       // CHANGE: Read from cache
-      cache_block * c_block = cache_get_block(sector_idx);
+      struct cache_block * c_block = cache_get_block(sector_idx);
       memcpy(buffer + bytes_read, c_block->block + sector_ofs, chunk_size);
 
       c_block->accessed = true;
@@ -289,7 +289,7 @@ inode_write_at (struct inode *inode, const void *buffer_, off_t size,
         break;
 
       // CHANGE: use block cache for writing
-      cache_block * c_block = cache_get_block(sector_idx);
+      struct cache_block * c_block = cache_get_block(sector_idx);
       memcpy(c_block->block + sector_ofs, buffer + bytes_written, chunk_size);
       c_block->accessed = true;
       c_block->dirty = true;

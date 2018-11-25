@@ -3,7 +3,7 @@
 #include "devices/block.h"
 #include "lib/kernel/list.h"
 
-typedef struct {
+struct cache_block {
     struct list_elem elem;
 
     uint8_t block[BLOCK_SECTOR_SIZE];
@@ -12,7 +12,7 @@ typedef struct {
     bool in_use;
     bool accessed;
     bool dirty;
-} cache_block;
+};
 
 struct cache_block * get_new_cache_block(void);
 void cache_init(void);
