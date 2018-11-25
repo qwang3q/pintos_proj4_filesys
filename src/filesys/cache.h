@@ -1,3 +1,6 @@
+#ifndef FILESYS_CACHE_H
+#define FILESYS_CACHE_H
+
 #define CACHE_CAPACITY 64
 
 #include "devices/block.h"
@@ -23,3 +26,5 @@ void cache_flush(void);
 // Clock algorithm evicting cache
 void cache_evict(void); 
 struct cache_block cache_get_block(block_sector_t d_sector);
+
+#endif
