@@ -51,7 +51,7 @@ cache_evict(void) {
     struct list_elem * head;
     struct cache_block *c_block;
 
-    for (head = list_begin (&cache_all_blocks); head != list_end (&cache_all_blocks); head = list_next (head)) {
+    for (head = list_begin (&cache_all_blocks); head != NULL && head != list_end (&cache_all_blocks); head = list_next (head)) {
         c_block = list_entry (head, struct cache_block, elem);
         if(c_block->in_use)
             continue;
@@ -75,7 +75,7 @@ cache_get_block(block_sector_t d_sector) {
     if(!list_empty(&cache_all_blocks)) {
         struct cache_block *c_block;
 
-        for (head = list_begin (&cache_all_blocks); head != list_end (&cache_all_blocks); head = list_next (head)) {
+        for (head = list_begin (&cache_all_blocks); head != NULL && head != list_end (&cache_all_blocks); head = list_next (head)) {
             c_block = list_entry (head, struct cache_block, elem);
             if(c_block->disk_sector == d_sector) {
                 return c_block;
