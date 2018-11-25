@@ -8,6 +8,7 @@ Cache file blocks, 64 sectors in total
 
 #include "devices/block.h"
 #include "filesys/filesys.h"
+#include "devices/timer.h"
 #include "threads/synch.h"
 #include "threads/thread.h"
 #include "filesys/cache.h"
