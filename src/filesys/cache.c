@@ -64,7 +64,7 @@ cache_get_free_block(void) {
 
 void 
 cache_write_back(int i_block) {
-    block_write(fs_device, cache_all_blocks[i_block].disk_sector, cache_all_blocks[i_block].block);
+    block_write(fs_device, cache_all_blocks[i_block].disk_sector, &cache_all_blocks[i_block].block);
     cache_all_blocks[i_block].dirty = false;
 }
 
@@ -105,6 +105,7 @@ cache_evict(void) {
 
 struct cache_block * cache_get_block(block_sector_t d_sector) {
   lock_acquire(&cache_lock);
+
   int i_target_block = -1;
   int i_block;
   for(i_block = 0; i_block < CACHE_CAPACITY; i_block++) {
