@@ -8,6 +8,7 @@ Cache file blocks, 64 sectors in total
 
 #include "devices/block.h"
 #include "filesys/filesys.h"
+#include "threads/synch.h"
 #include "filesys/cache.h"
 
 void
@@ -24,6 +25,18 @@ cache_init(void) {
   int i_block;
   for(i_block = 0; i_block < CACHE_CAPACITY; i_block++) {
     new_cache_block(i_block);
+  }
+
+  // Set up a maintenance thread cleaning up
+  thread_create("cache_maintenance_job", 0, maintenance_job, NULL);
+}
+
+void
+maintenance_job(void) {
+  while(true)
+  {
+      timer_sleep(4 * TIMER_FREQ);
+      cache_write_back();
   }
 }
 
