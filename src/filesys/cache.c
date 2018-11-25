@@ -63,11 +63,8 @@ cache_get_free_block(void) {
 
 void 
 cache_write_back(int i_block) {
-    if(!cache_all_blocks[i_block].dirty)
-        return;
-    
-    // TODO: write back to disk
     block_write(fs_device, cache_all_blocks[i_block].disk_sector, cache_all_blocks[i_block].block);
+    ache_all_blocks[i_block].dirty = false;
 }
 
 void 
@@ -77,7 +74,6 @@ cache_flush(void) {
   for(i_block = 0; i_block < CACHE_CAPACITY; i_block++) {
     if(cache_all_blocks[i_block].dirty == true) {
       cache_write_back(i_block);
-      cache_all_blocks[i_block].dirty = false;
     }
   }
 
