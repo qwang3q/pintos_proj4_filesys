@@ -14,14 +14,7 @@ struct cache_block {
 
 struct cache_block cache_all_blocks[CACHE_CAPACITY];
 
-void new_cache_block(int i_block) {
-    struct cache_block c_block = cache_all_blocks[i_block];
-    c_block.free = true;
-    c_block.in_use = false;
-    c_block.accessed = false;
-    c_block.dirty = false;
-}
-
+void new_cache_block(int i_block);
 void cache_init(void);
 void cache_mark_block_dirty(struct cache_block * c_block);
 int cache_get_free_block(void);
