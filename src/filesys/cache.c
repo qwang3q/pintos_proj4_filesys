@@ -105,7 +105,7 @@ struct cache_block * cache_get_block(block_sector_t d_sector) {
   cache_all_blocks[i_target_block].disk_sector = d_sector;
   cache_all_blocks[i_target_block].free = false;
   cache_all_blocks[i_target_block].c_in_use++;
-  cache_all_blocks[i_target_block];.accessed = true;
+  cache_all_blocks[i_target_block].accessed = true;
 
   return &cache_all_blocks[i_target_block];;
 }
