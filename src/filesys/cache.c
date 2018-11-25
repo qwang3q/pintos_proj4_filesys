@@ -48,10 +48,10 @@ cache_evict(void) {
     if(list_empty(&cache_all_blocks))
         return;
 
-    struct list_elem * head = list_begin(&cache_all_blocks);
+    struct list_elem * head;
     struct cache_block *c_block;
 
-    while(head != NULL) {
+    for (head = list_begin (&cache_all_blocks); head != list_end (&cache_all_blocks); head = list_next (head)) {
         c_block = list_entry (head, struct cache_block, elem);
         if(c_block->in_use)
             continue;
@@ -65,12 +65,6 @@ cache_evict(void) {
             list_remove(head);
             break;
         }
-
-        if(head == list_end(&cache_all_blocks)) {
-            break;
-        }
-        
-        head = list_next(head);
     }
 }
 
@@ -79,25 +73,18 @@ cache_get_block(block_sector_t d_sector) {
     struct list_elem *head;
 
     if(!list_empty(&cache_all_blocks)) {
-        head = list_begin(&cache_all_blocks);
         struct cache_block *c_block;
 
-        while(head != NULL) {
+        for (head = list_begin (&cache_all_blocks); head != list_end (&cache_all_blocks); head = list_next (head)) {
             c_block = list_entry (head, struct cache_block, elem);
             if(c_block->disk_sector == d_sector) {
                 return c_block;
             }
-            
-            if(head == list_end(&cache_all_blocks)) {
-                break;
-            }
-
-            head = list_next(head);
         }
     }
 
     // If come here then there is no free block available, evict, then cache item
-    while(list_size(&cache_all_blocks) >= CACHE_CAPACITY) {
+    while(!list_empty(&cache_all_blocks) && list_size(&cache_all_blocks) >= CACHE_CAPACITY) {
         cache_evict();
     }
 
