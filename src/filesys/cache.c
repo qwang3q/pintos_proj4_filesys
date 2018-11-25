@@ -13,7 +13,7 @@ Cache file blocks, 64 sectors in total
 void
 new_cache_block(int i_block) {
     cache_all_blocks[i_block].free = true;
-    cache_all_blocks[i_block].in_use = false;
+    cache_all_blocks[i_block].c_in_use = 0;
     cache_all_blocks[i_block].accessed = false;
     cache_all_blocks[i_block].dirty = false;
 }
@@ -69,7 +69,7 @@ void
 cache_evict(void) {
   int i_block;
   for(i_block = 0; i_block < CACHE_CAPACITY; i_block++) {
-    if(cache_all_blocks[i_block].in_use)
+    if(cache_all_blocks[i_block].c_in_use > 0)
         continue;
     
     if(cache_all_blocks[i_block].accessed) {
@@ -83,7 +83,7 @@ cache_evict(void) {
   }
 }
 
-struct cache_block cache_get_block(block_sector_t d_sector) {
+struct cache_block * cache_get_block(block_sector_t d_sector) {
   int i_target_block = -1;
   while(i_target_block == -1) {
     int i_block;
@@ -102,9 +102,10 @@ struct cache_block cache_get_block(block_sector_t d_sector) {
   }
 
   struct cache_block target_c_block = cache_all_blocks[i_target_block];
-  target_c_block.disk_sector = d_sector;
-  target_c_block.free = false;
-  target_c_block.accessed = true;
+  cache_all_blocks[i_target_block];.disk_sector = d_sector;
+  cache_all_blocks[i_target_block];.free = false;
+  cache_all_blocks[i_target_block];.c_in_use++;
+  cache_all_blocks[i_target_block];.accessed = true;
 
-  return target_c_block;
+  return &cache_all_blocks[i_target_block];;
 }
