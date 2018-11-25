@@ -103,7 +103,8 @@ cache_evict(void) {
   }
 }
 
-struct cache_block * cache_get_block(block_sector_t d_sector) {
+struct int
+cache_get_block(block_sector_t d_sector) {
   lock_acquire(&cache_lock);
 
   int i_target_block = -1;
@@ -136,5 +137,5 @@ struct cache_block * cache_get_block(block_sector_t d_sector) {
 
   lock_release(&cache_lock);
 
-  return &cache_all_blocks[i_target_block];;
+  return &cache_all_blocks[i_target_block];
 }
