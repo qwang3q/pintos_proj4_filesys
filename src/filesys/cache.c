@@ -73,20 +73,22 @@ cache_evict(void) {
 
 struct cache_block *
 cache_get_block(block_sector_t d_sector) {
-    struct list_elem * head = list_begin(&cache_all_blocks);
-    struct cache_block *c_block;
+    if(!list_empty(&cache_all_blocks)) {
+        struct list_elem * head = list_begin(&cache_all_blocks);
+        struct cache_block *c_block;
 
-    while(head != NULL) {
-        c_block = list_entry (head, struct cache_block, elem);
-        if(c_block->disk_sector == d_sector) {
-            return c_block;
-        }
-        
-        if(head == list_end(&cache_all_blocks)) {
-            break;
-        }
+        while(head != NULL) {
+            c_block = list_entry (head, struct cache_block, elem);
+            if(c_block->disk_sector == d_sector) {
+                return c_block;
+            }
+            
+            if(head == list_end(&cache_all_blocks)) {
+                break;
+            }
 
-        head = list_next(head);
+            head = list_next(head);
+        }
     }
 
     // If come here then there is no free block available, evict, then cache item
