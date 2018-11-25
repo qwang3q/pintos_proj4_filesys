@@ -119,7 +119,7 @@ struct cache_block * cache_get_block(block_sector_t d_sector) {
     }
 
     // This is a free block, load it with data
-    block_read(fs_device, cache_all_blocks[i_target_block].disk_sector, &cache_all_blocks[i_target_block];
+    block_read(fs_device, cache_all_blocks[i_target_block].disk_sector, &cache_all_blocks[i_target_block]);
   }
 
   cache_all_blocks[i_target_block].disk_sector = d_sector;
