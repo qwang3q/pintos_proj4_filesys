@@ -9,7 +9,7 @@ Cache file blocks, 64 sectors in total
 #include "devices/block.h"
 #include "filesys/filesys.h"
 #include "lib/kernel/list.h"
-#include "cache.h"
+#include "filesys/cache.h"
 
 static struct list cache_all_blocks;
 
