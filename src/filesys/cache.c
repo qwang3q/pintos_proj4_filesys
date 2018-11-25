@@ -62,6 +62,10 @@ cache_evict(void) {
             list_remove(head);
             break;
         }
+
+        if(head == list_tail(&cache_all_blocks)) {
+            break;
+        }
         
         head = list_next(head);
     }
@@ -76,6 +80,10 @@ cache_get_block(block_sector_t d_sector) {
         c_block = list_entry (head, struct cache_block, elem);
         if(c_block->disk_sector == d_sector) {
             return c_block;
+        }
+        
+        if(head == list_tail(&cache_all_blocks)) {
+            break;
         }
 
         head = list_next(head);

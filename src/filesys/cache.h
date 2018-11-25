@@ -7,7 +7,7 @@ struct cache_block {
     struct list_elem elem;
 
     uint8_t block[BLOCK_SECTOR_SIZE];
-    block_sector_t * disk_sector;
+    block_sector_t disk_sector;
 
     bool in_use;
     bool accessed;
