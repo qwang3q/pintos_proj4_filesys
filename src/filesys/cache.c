@@ -53,7 +53,6 @@ cache_evict(void) {
 
     head = list_begin (&cache_all_blocks);
 
-    
     while(head != NULL) {
         c_block = list_entry (head, struct cache_block, elem);
         if(c_block->in_use)
@@ -65,7 +64,11 @@ cache_evict(void) {
         } else {
             // evict
             cache_write_back(c_block);
-            list_remove(head);
+            if(head == list_end(&cache_all_blocks)) {
+                list_empty(&cache_all_blocks);
+            } else {
+                list_remove(head);
+            }
             break;
         }
 
