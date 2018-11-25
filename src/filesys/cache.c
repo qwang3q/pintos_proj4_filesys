@@ -38,7 +38,7 @@ maintenance_job(void) {
   while(true)
   {
       timer_sleep(4 * TIMER_FREQ);
-      cache_write_back();
+      cache_flush();
   }
 }
 
