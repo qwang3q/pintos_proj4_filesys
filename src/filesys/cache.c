@@ -93,8 +93,11 @@ cache_evict(void) {
         cache_all_blocks[i_block].accessed = false;
     } else {
         // evict
-        cache_write_back(i_block);
+        if(cache_all_blocks[i_block].dirty == true)
+          cache_write_back(i_block);
+
         new_cache_block(i_block);
+        break;
     }
   }
 }
