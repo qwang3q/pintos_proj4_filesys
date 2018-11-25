@@ -12,11 +12,10 @@ Cache file blocks, 64 sectors in total
 
 void
 new_cache_block(int i_block) {
-    struct cache_block c_block = cache_all_blocks[i_block];
-    c_block.free = true;
-    c_block.in_use = false;
-    c_block.accessed = false;
-    c_block.dirty = false;
+    cache_all_blocks[i_block].free = true;
+    cache_all_blocks[i_block].in_use = false;
+    cache_all_blocks[i_block].accessed = false;
+    cache_all_blocks[i_block].dirty = false;
 }
 
 void
@@ -35,11 +34,9 @@ cache_mark_block_dirty(struct cache_block * c_block) {
 
 int
 cache_get_free_block(void) {
-  struct cache_block c_block;
   int i_block;
   for(i_block = 0; i_block < CACHE_CAPACITY; i_block++) {
-    c_block = cache_all_blocks[i_block];
-    if(c_block.free == true) {
+    if(cache_all_blocks[i_block].free == true) {
       return i_block;
     }
   }
@@ -48,23 +45,21 @@ cache_get_free_block(void) {
 }
 
 void 
-cache_write_back(struct cache_block c_block) {
-    if(!c_block.dirty)
+cache_write_back(int i_block) {
+    if(!cache_all_blocks[i_block].dirty)
         return;
     
     // TODO: write back to disk
-    block_write(fs_device, c_block.disk_sector, c_block.block);
+    block_write(fs_device, cache_all_blocks[i_block].disk_sector, cache_all_blocks[i_block].block);
 }
 
 void 
 cache_flush(void) {
-  struct cache_block c_block;
   int i_block;
   for(i_block = 0; i_block < CACHE_CAPACITY; i_block++) {
-    c_block = cache_all_blocks[i_block];
-    if(c_block.dirty == true) {
-      cache_write_back(c_block);
-      c_block.dirty = false;
+    if(cache_all_blocks[i_block].dirty == true) {
+      cache_write_back(i_block);
+      cache_all_blocks[i_block].dirty = false;
     }
   }
 }
@@ -72,36 +67,28 @@ cache_flush(void) {
 // Clock algorithm evicting cache
 void
 cache_evict(void) {
-  struct cache_block c_block;
   int i_block;
   for(i_block = 0; i_block < CACHE_CAPACITY; i_block++) {
-    c_block = cache_all_blocks[i_block];
-
-    if(c_block.in_use)
+    if(cache_all_blocks[i_block].in_use)
         continue;
     
-    if(c_block.accessed) {
+    if(cache_all_blocks[i_block].accessed) {
         // Give it second chance
-        c_block.accessed = false;
+        cache_all_blocks[i_block].accessed = false;
     } else {
         // evict
-        cache_write_back(c_block);
+        cache_write_back(i_block);
         new_cache_block(i_block);
     }
   }
 }
 
 struct cache_block cache_get_block(block_sector_t d_sector) {
-  struct cache_block c_block;
   int i_target_block = -1;
-  bool found = false;
-
   while(i_target_block == -1) {
     int i_block;
     for(i_block = 0; i_block < CACHE_CAPACITY; i_block++) {
-      c_block = cache_all_blocks[i_block];
-
-      if(c_block.disk_sector == d_sector) {
+      if(cache_all_blocks[i_block].disk_sector == d_sector) {
         i_target_block = i_block;
         break;
       }
