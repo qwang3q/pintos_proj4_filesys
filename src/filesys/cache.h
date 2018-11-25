@@ -1,10 +1,10 @@
 #ifndef FILESYS_CACHE_EXECUTED
 #define FILESYS_CACHE_EXECUTED
 
-#define CACHE_CAPACITY 64
-
 #include "devices/block.h"
 #include "threads/synch.h"
+
+#define CACHE_CAPACITY 64
 
 struct cache_block {
     uint8_t block[BLOCK_SECTOR_SIZE];
