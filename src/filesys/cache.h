@@ -29,5 +29,8 @@ void cache_flush(void);
 // Clock algorithm evicting cache
 void cache_evict(void); 
 int cache_get_block(block_sector_t d_sector);
+void read_from_cache(block_sector_t sector_idx, uint8_t * buffer, int sector_ofs, int chunk_size);
+void write_to_cache(block_sector_t sector_idx, int sector_ofs, uint8_t * buffer, int chunk_size);
+
 
 #endif

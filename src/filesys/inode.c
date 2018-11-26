@@ -222,9 +222,11 @@ inode_read_at (struct inode *inode, void *buffer_, off_t size, off_t offset)
         break;
 
       // CHANGE: Read from cache
-      int i_block = cache_get_block(sector_idx);
-      memcpy(buffer + bytes_read, cache_all_blocks[i_block].block + sector_ofs, chunk_size);
-      cache_all_blocks[i_block].c_in_use--;
+      read_from_cache(sector_idx, buffer + bytes_read, sector_ofs, chunk_size);
+
+      // int i_block = cache_get_block(sector_idx);
+      // memcpy(buffer + bytes_read, cache_all_blocks[i_block].block + sector_ofs, chunk_size);
+      // cache_all_blocks[i_block].c_in_use--;
 
       // if (sector_ofs == 0 && chunk_size == BLOCK_SECTOR_SIZE)
       //   {
@@ -288,10 +290,12 @@ inode_write_at (struct inode *inode, const void *buffer_, off_t size,
         break;
 
       // CHANGE: use block cache for writing
-      int i_block = cache_get_block(sector_idx);      
-      memcpy(cache_all_blocks[i_block].block + sector_ofs, buffer + bytes_written, chunk_size);
-      cache_all_blocks[i_block].dirty = true;
-      cache_all_blocks[i_block].c_in_use--;
+      write_to_cache(sector_idx, sector_ofs, buffer + bytes_written, chunk_size);
+
+      // int i_block = cache_get_block(sector_idx);      
+      // memcpy(cache_all_blocks[i_block].block + sector_ofs, buffer + bytes_written, chunk_size);
+      // cache_all_blocks[i_block].dirty = true;
+      // cache_all_blocks[i_block].c_in_use--;
 
       // if (sector_ofs == 0 && chunk_size == BLOCK_SECTOR_SIZE)
       //   {

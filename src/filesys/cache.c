@@ -132,12 +132,22 @@ cache_get_block(block_sector_t d_sector) {
     cache_all_blocks[i_target_block].accessed = true;
   }
 
-  // cache_all_blocks[i_target_block].disk_sector = d_sector;
-  // cache_all_blocks[i_target_block].free = false;
-  // cache_all_blocks[i_target_block].c_in_use++;
-  // cache_all_blocks[i_target_block].accessed = true;
-
   lock_release(&cache_lock);
 
   return i_target_block;
+}
+
+void
+read_from_cache(block_sector_t sector_idx, uint8_t * buffer, int sector_ofs, int chunk_size) {
+  int i_block = cache_get_block(sector_idx);
+  memcpy(buffer, cache_all_blocks[i_block].block + sector_ofs, chunk_size);
+  cache_all_blocks[i_block].c_in_use--;
+}
+
+void
+write_to_cache(block_sector_t sector_idx, int sector_ofs, uint8_t * buffer, int chunk_size) {
+  int i_block = cache_get_block(sector_idx);      
+  memcpy(cache_all_blocks[i_block].block + sector_ofs, buffer, chunk_size);
+  cache_all_blocks[i_block].dirty = true;
+  cache_all_blocks[i_block].c_in_use--;
 }
