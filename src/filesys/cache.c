@@ -44,11 +44,6 @@ cache_maintenance_job(void *aux UNUSED) {
   }
 }
 
-void
-cache_mark_block_dirty(struct cache_block * c_block) {
-    c_block->dirty = true;
-}
-
 int
 cache_get_free_block(void) {
   int i_block;
