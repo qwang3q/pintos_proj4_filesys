@@ -8,6 +8,14 @@
 #include "threads/malloc.h"
 #include "filesys/cache.h"
 
+/* size of direct, indirect, double indirect blocks */
+// use all unused spaces
+#define DIRECT_BLOCK_COUNT 124
+// 128 number of pointers allowed for each sector
+#define INDIRECT_BLOCK_COUNT ( DISK_SECTOR_SIZE / sizeof (block_sector_t))
+// 128 pointers at indirect blocks
+#define DOUBLE_INDIRECT_BLOCK_COUNT INDIRECT_BLOCK_COUNT 
+
 /* Identifies an inode. */
 #define INODE_MAGIC 0x494e4f44
 
@@ -15,10 +23,14 @@
    Must be exactly BLOCK_SECTOR_SIZE bytes long. */
 struct inode_disk
   {
-    block_sector_t start;               /* First data sector. */
+    /* First data sector. */
+    block_sector_t direct_blocks[DIRECT_BLOCK_COUNT];
+    block_sector_t indirect;            // indirect blocks
+    block_sector_t d_indirect;          // double indirect blocks
+
     off_t length;                       /* File size in bytes. */
     unsigned magic;                     /* Magic number. */
-    uint32_t unused[125];               /* Not used. */
+    //uint32_t unused[125];               /* Not used. */
   };
 
 /* Returns the number of sectors to allocate for an inode SIZE
@@ -38,7 +50,12 @@ struct inode
     bool removed;                       /* True if deleted, false otherwise. */
     int deny_write_cnt;                 /* 0: writes ok, >0: deny writes. */
     struct inode_disk data;             /* Inode content. */
-  };
+  }; 
+
+void
+get_indirect_blocks() {
+
+}
 
 /* Returns the block device sector that contains byte offset POS
    within INODE.
@@ -48,10 +65,15 @@ static block_sector_t
 byte_to_sector (const struct inode *inode, off_t pos) 
 {
   ASSERT (inode != NULL);
-  if (pos < inode->data.length)
-    return inode->data.start + pos / BLOCK_SECTOR_SIZE;
-  else
+  if (pos >= inode->data.length)
     return -1;
+  
+  int block_index = pos / BLOCK_SECTOR_SIZE;
+
+  // Direct blocks
+
+
+  inode->data.start + pos / BLOCK_SECTOR_SIZE;
 }
 
 /* List of open inodes, so that opening a single inode twice
