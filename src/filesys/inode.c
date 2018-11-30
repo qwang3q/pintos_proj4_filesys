@@ -93,16 +93,6 @@ inode_init (void)
   list_init (&open_inodes);
 }
 
-off_t
-allocate_block(block_sector_t[] arr, int i, off_t length) {
-  off_t remaining = 0;
-  if(length >= BLOCK_SECTOR_SIZE) {
-    remaining = length - BLOCK_SECTOR_SIZE;
-  }
-
-
-}
-
 /* Initializes an inode with LENGTH bytes of data and
    writes the new inode to sector SECTOR on the file system
    device.
@@ -172,22 +162,22 @@ inode_create (block_sector_t sector, off_t length)
       }
 
       //3 write double indirect block
-      sectors_size_this_level = DOUBLE_INDIRECT_BLOCK_COUNT;
-      if(sectors < sectors_size_this_level)
-        sectors_size_this_level = sectors;
-
-      if(sectors_size_this_level>0) {
+      if(sectors>0) {
         disk_inode->d_indirect = calloc (1, sizeof *disk_inode);
 
         struct indirect_block d_ind_block;
-        int i = 0;
+        int i = 0, j;
         
         while(sectors>0) {
+          sectors_size_this_level = DOUBLE_INDIRECT_BLOCK_COUNT;
+          if(sectors < sectors_size_this_level)
+            sectors_size_this_level = sectors;
+
           struct indirect_block ind_block;
-          for(i=0; i<sectors_size_this_level; i++) {
-            if (free_map_allocate (1, &ind_block.blocks[i])) 
+          for(j=0; j<sectors_size_this_level; j++) {
+            if (free_map_allocate (1, &ind_block.blocks[j])) 
             {
-              block_write (fs_device, ind_block.blocks[i], zeros); 
+              block_write (fs_device, ind_block.blocks[j], zeros); 
             }
           }
 
@@ -277,11 +267,70 @@ inode_close (struct inode *inode)
  
       /* Deallocate blocks if removed. */
       if (inode->removed) 
-        {
-          free_map_release (inode->sector, 1);
-          free_map_release (inode->data.start,
-                            bytes_to_sectors (inode->data.length)); 
+      {
+        free_map_release (inode->sector, 1);
+
+        struct inode_disk * disk_inode = &inode->data;
+        size_t sectors = bytes_to_sectors (disk_inode->length);
+
+        size_t sectors_size_this_level;
+        int i;
+        //1 free direct block
+        sectors_size_this_level = DIRECT_BLOCK_COUNT;
+        if(sectors < sectors_size_this_level)
+          sectors_size_this_level = sectors;
+        
+        for(i=0; i<sectors_size_this_level; i++) {
+          free_map_release(disk_inode->direct_blocks[i], 1);
         }
+
+        sectors -= sectors_size_this_level;
+
+        //2 free indirect block
+        sectors_size_this_level = INDIRECT_BLOCK_COUNT;
+        if(sectors < sectors_size_this_level)
+          sectors_size_this_level = sectors;
+
+        if(sectors_size_this_level>0) {
+          block_sector_t blocks_this_level[INDIRECT_BLOCK_COUNT];
+          block_read(fs_device, disk_inode->indirect, blocks_this_level);
+          
+          for(i=0; i<sectors_size_this_level; i++) {
+            free_map_release(blocks_this_level[i], 1); 
+          }
+
+          free_map_release(disk_inode->indirect, 1);
+
+          sectors -= sectors_size_this_level;
+        }
+
+        //3 free double indirect block
+        if(sectors>0) {
+          block_sector_t blocks_this_level[INDIRECT_BLOCK_COUNT];
+          block_read(fs_device, disk_inode->d_indirect, blocks_this_level);
+
+          block_sector_t blocks_next_level[INDIRECT_BLOCK_COUNT];
+          int i = 0, j;
+          
+          while(sectors>0) {
+            sectors_size_this_level = DOUBLE_INDIRECT_BLOCK_COUNT;
+            if(sectors < sectors_size_this_level)
+              sectors_size_this_level = sectors;
+
+            block_read(fs_device, blocks_this_level[i], blocks_next_level);
+            for(j=0; j<sectors_size_this_level; j++) {
+              free_map_release (blocks_next_level[j], 1);
+            }
+
+            free_map_release( blocks_this_level[i], 1);
+
+            sectors -= sectors_size_this_level;
+            i++;
+          }
+        }
+
+        free_map_release(disk_inode->d_indirect, 1);
+      }
 
       free (inode); 
     }
