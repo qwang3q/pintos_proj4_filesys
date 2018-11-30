@@ -58,11 +58,6 @@ struct inode
     struct inode_disk data;             /* Inode content. */
   }; 
 
-void
-get_indirect_blocks() {
-
-}
-
 /* Returns the block device sector that contains byte offset POS
    within INODE.
    Returns -1 if INODE does not contain data for a byte at offset
@@ -77,9 +72,29 @@ byte_to_sector (const struct inode *inode, off_t pos)
   int block_index = pos / BLOCK_SECTOR_SIZE;
 
   // Direct blocks
+  if(block_index < DIRECT_BLOCK_COUNT) {
+    return inode->data.direct_blocks[block_index];
+  }
 
+  block_index -= DIRECT_BLOCK_COUNT;
 
-  inode->data.start + pos / BLOCK_SECTOR_SIZE;
+  // Indirect blocks
+  if(block_index < INDIRECT_BLOCK_COUNT) {
+    block_sector_t blocks[INDIRECT_BLOCK_COUNT];
+    block_read(fs_device, inode->data.indirect, &blocks);
+    return blocks[block_index];
+  }
+
+  block_index -= INDIRECT_BLOCK_COUNT;
+
+  // Double
+  block_sector_t blocks_this_level[INDIRECT_BLOCK_COUNT];
+  block_read(fs_device, inode->data.d_indirect, &blocks_this_level);
+
+  block_sector_t blocks_next_level[INDIRECT_BLOCK_COUNT];
+  block_read(fs_device, blocks_this_level[block_index / INDIRECT_BLOCK_COUNT], blocks_next_level);
+
+  return blocks_next_level[block_index % INDIRECT_BLOCK_COUNT];
 }
 
 /* List of open inodes, so that opening a single inode twice
