@@ -7,14 +7,15 @@
 #include "filesys/free-map.h"
 #include "threads/malloc.h"
 #include "filesys/cache.h"
+#include "devices/block.h"
 
 /* size of direct, indirect, double indirect blocks */
 // use all unused spaces
 #define DIRECT_BLOCK_COUNT 124
 // 128 number of pointers allowed for each sector
-#define INDIRECT_BLOCK_COUNT ( DISK_SECTOR_SIZE / sizeof (block_sector_t))
+#define INDIRECT_BLOCK_COUNT ( BLOCK_SECTOR_SIZE / sizeof (block_sector_t))
 // 128 pointers at indirect blocks
-#define DOUBLE_INDIRECT_BLOCK_COUNT INDIRECT_BLOCK_COUNT 
+#define DOUBLE_INDIRECT_BLOCK_COUNT INDIRECT_BLOCK_COUNT * INDIRECT_BLOCK_COUNT
 
 /* Identifies an inode. */
 #define INODE_MAGIC 0x494e4f44
@@ -32,6 +33,11 @@ struct inode_disk
     unsigned magic;                     /* Magic number. */
     //uint32_t unused[125];               /* Not used. */
   };
+
+struct indirect_block
+{
+  block_sector_t blocks[INDIRECT_BLOCK_COUNT];
+};
 
 /* Returns the number of sectors to allocate for an inode SIZE
    bytes long. */
@@ -87,6 +93,16 @@ inode_init (void)
   list_init (&open_inodes);
 }
 
+off_t
+allocate_block(block_sector_t[] arr, int i, off_t length) {
+  off_t remaining = 0;
+  if(length >= BLOCK_SECTOR_SIZE) {
+    remaining = length - BLOCK_SECTOR_SIZE;
+  }
+
+
+}
+
 /* Initializes an inode with LENGTH bytes of data and
    writes the new inode to sector SECTOR on the file system
    device.
@@ -104,25 +120,88 @@ inode_create (block_sector_t sector, off_t length)
      one sector in size, and you should fix that. */
   ASSERT (sizeof *disk_inode == BLOCK_SECTOR_SIZE);
 
+  // Allocate disk_inode, this ensure that 
   disk_inode = calloc (1, sizeof *disk_inode);
   if (disk_inode != NULL)
     {
       size_t sectors = bytes_to_sectors (length);
       disk_inode->length = length;
       disk_inode->magic = INODE_MAGIC;
-      if (free_map_allocate (sectors, &disk_inode->start)) 
+
+      static char zeros[BLOCK_SECTOR_SIZE];
+
+      block_write (fs_device, sector, disk_inode);
+
+      size_t sectors_size_this_level; 
+      int i;
+      //1 write direct block
+      sectors_size_this_level = DIRECT_BLOCK_COUNT;
+      if(sectors < sectors_size_this_level)
+        sectors_size_this_level = sectors;
+      
+      for(i=0; i<sectors_size_this_level; i++) {
+        if (free_map_allocate (1, &disk_inode->direct_blocks[i])) 
         {
-          block_write (fs_device, sector, disk_inode);
-          if (sectors > 0) 
+          block_write (fs_device, disk_inode->direct_blocks[i], zeros); 
+        }
+      }
+
+      sectors -= sectors_size_this_level;
+
+      //2 write indirect block
+      sectors_size_this_level = INDIRECT_BLOCK_COUNT;
+      if(sectors < sectors_size_this_level)
+        sectors_size_this_level = sectors;
+
+      if(sectors_size_this_level>0) {
+        disk_inode->indirect = calloc (1, sizeof *disk_inode);
+
+        struct indirect_block ind_block;
+        
+        for(i=0; i<sectors_size_this_level; i++) {
+          if (free_map_allocate (1, &ind_block.blocks[i])) 
+          {
+            block_write (fs_device, ind_block.blocks[i], zeros); 
+          }
+        }
+
+        // Associate this new data block arrays with indirect pointers
+        block_write(fs_device, disk_inode->indirect, &ind_block.blocks);
+
+        sectors -= sectors_size_this_level;
+      }
+
+      //3 write double indirect block
+      sectors_size_this_level = DOUBLE_INDIRECT_BLOCK_COUNT;
+      if(sectors < sectors_size_this_level)
+        sectors_size_this_level = sectors;
+
+      if(sectors_size_this_level>0) {
+        disk_inode->d_indirect = calloc (1, sizeof *disk_inode);
+
+        struct indirect_block d_ind_block;
+        int i = 0;
+        
+        while(sectors>0) {
+          struct indirect_block ind_block;
+          for(i=0; i<sectors_size_this_level; i++) {
+            if (free_map_allocate (1, &ind_block.blocks[i])) 
             {
-              static char zeros[BLOCK_SECTOR_SIZE];
-              size_t i;
-              
-              for (i = 0; i < sectors; i++) 
-                block_write (fs_device, disk_inode->start + i, zeros);
+              block_write (fs_device, ind_block.blocks[i], zeros); 
             }
-          success = true; 
-        } 
+          }
+
+          block_write(fs_device, d_ind_block.blocks[i], ind_block.blocks);
+
+          sectors -= sectors_size_this_level;
+          i++;
+        }
+
+        // Associate this new data block arrays with indirect pointers
+          block_write(fs_device, disk_inode->d_indirect, &d_ind_block.blocks);
+      }
+
+       
       free (disk_inode);
     }
   return success;

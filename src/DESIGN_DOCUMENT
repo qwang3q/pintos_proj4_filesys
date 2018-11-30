@@ -46,6 +46,13 @@ struct inode_disk
     //uint32_t unused[125];               /* Not used. */
   };
 
+/*
+    data structure holding pointers to either indirect block or data block
+*/
+struct indirect_block
+    {
+        block_sector_t blocks[INDIRECT_BLOCK_COUNT];
+    };
 
 >> A2: What is the maximum size of a file supported by your inode
 >> structure?  Show your work.
