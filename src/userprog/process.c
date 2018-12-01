@@ -103,6 +103,7 @@ start_process (void *exec_)
     }
   
   /* Notify parent thread and clean up. */
+  printf("thread exited here:(\n");
   exec->success = success;
   sema_up (&exec->load_done);
   if (!success) 
