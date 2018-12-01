@@ -117,7 +117,7 @@ bool
 inode_create (block_sector_t sector, off_t length)
 {
   struct inode_disk *disk_inode = NULL;
-  bool success = false;
+  bool success = true;
 
   ASSERT (length >= 0);
 
@@ -148,6 +148,8 @@ inode_create (block_sector_t sector, off_t length)
         if (free_map_allocate (1, &disk_inode->direct_blocks[i])) 
         {
           block_write (fs_device, disk_inode->direct_blocks[i], zeros); 
+        } else {
+          success = false;
         }
       }
 
@@ -167,6 +169,8 @@ inode_create (block_sector_t sector, off_t length)
             if (free_map_allocate (1, &ind_block->blocks[i])) 
             {
               block_write (fs_device, ind_block->blocks[i], zeros); 
+            } else {
+              success = false;
             }
           }
 
@@ -197,6 +201,9 @@ inode_create (block_sector_t sector, off_t length)
               {
                 block_write (fs_device, ind_block->blocks[j], zeros); 
               }
+               else {
+                success = false;
+              }
             }
 
             block_write(fs_device, d_ind_block->blocks[i], ind_block->blocks);
@@ -209,8 +216,6 @@ inode_create (block_sector_t sector, off_t length)
           block_write(fs_device, disk_inode->d_indirect, &d_ind_block->blocks);
         }
       }
-
-      success = true;
 
       free (disk_inode);
     }
