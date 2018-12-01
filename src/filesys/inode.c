@@ -210,6 +210,8 @@ inode_create (block_sector_t sector, off_t length)
         }
       }
 
+      success = true;
+
       free (disk_inode);
     }
   return success;
