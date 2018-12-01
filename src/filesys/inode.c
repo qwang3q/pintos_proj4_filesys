@@ -92,7 +92,7 @@ byte_to_sector (const struct inode *inode, off_t pos)
   block_read(fs_device, inode->data.d_indirect, &blocks_this_level);
 
   block_sector_t blocks_next_level[INDIRECT_BLOCK_COUNT];
-  block_read(fs_device, blocks_this_level[block_index / INDIRECT_BLOCK_COUNT], blocks_next_level);
+  block_read(fs_device, blocks_this_level[block_index / INDIRECT_BLOCK_COUNT], &blocks_next_level);
 
   return blocks_next_level[block_index % INDIRECT_BLOCK_COUNT];
 }
@@ -308,7 +308,7 @@ inode_close (struct inode *inode)
 
         if(sectors_size_this_level>0) {
           block_sector_t blocks_this_level[INDIRECT_BLOCK_COUNT];
-          block_read(fs_device, disk_inode->indirect, blocks_this_level);
+          block_read(fs_device, disk_inode->indirect, &blocks_this_level);
           
           for(i=0; i<sectors_size_this_level; i++) {
             free_map_release(blocks_this_level[i], 1); 
@@ -322,7 +322,7 @@ inode_close (struct inode *inode)
         //3 free double indirect block
         if(sectors>0) {
           block_sector_t blocks_this_level[INDIRECT_BLOCK_COUNT];
-          block_read(fs_device, disk_inode->d_indirect, blocks_this_level);
+          block_read(fs_device, disk_inode->d_indirect, &blocks_this_level);
 
           block_sector_t blocks_next_level[INDIRECT_BLOCK_COUNT];
           int i = 0, j;
@@ -332,7 +332,7 @@ inode_close (struct inode *inode)
             if(sectors < sectors_size_this_level)
               sectors_size_this_level = sectors;
 
-            block_read(fs_device, blocks_this_level[i], blocks_next_level);
+            block_read(fs_device, blocks_this_level[i], &blocks_next_level);
             for(j=0; j<sectors_size_this_level; j++) {
               free_map_release (blocks_next_level[j], 1);
             }
