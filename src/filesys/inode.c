@@ -69,7 +69,7 @@ byte_to_sector (const struct inode *inode, off_t pos)
   if (pos >= inode->data.length)
     return -1;
   
-  int block_index = pos / BLOCK_SECTOR_SIZE;
+  uint32_t block_index = pos / BLOCK_SECTOR_SIZE;
 
   // Direct blocks
   if(block_index < DIRECT_BLOCK_COUNT) {
