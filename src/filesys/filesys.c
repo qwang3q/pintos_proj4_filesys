@@ -73,8 +73,10 @@ filesys_open (const char *name)
   struct dir *dir = dir_open_root ();
   struct inode *inode = NULL;
 
-  if (dir != NULL)
+  if (dir != NULL){
+    printf("CD- dir isn't null\n");
     dir_lookup (dir, name, &inode);
+  }
   dir_close (dir);
 
   printf("CD - filesys_open get inode: %s\n", inode);
