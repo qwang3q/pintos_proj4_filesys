@@ -77,6 +77,8 @@ filesys_open (const char *name)
     dir_lookup (dir, name, &inode);
   dir_close (dir);
 
+  printf("CD - filesys_open get inode: %s\n", inode);
+
   return file_open (inode);
 }
 
