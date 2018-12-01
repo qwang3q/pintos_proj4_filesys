@@ -129,7 +129,7 @@ dir_lookup (const struct dir *dir, const char *name,
   ASSERT (dir != NULL);
   ASSERT (name != NULL);
 
-  printf("name is %s\n", name);
+  printf("CD- file name is %s\n", name);
 
   if (lookup (dir, name, &e, NULL)) {
     printf("CD- executing inode open at sector: %d\n", e.inode_sector);
