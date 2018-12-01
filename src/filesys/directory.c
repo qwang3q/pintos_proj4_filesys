@@ -127,7 +127,7 @@ dir_lookup (const struct dir *dir, const char *name,
   printf("name is %s\n", name);
 
   if (lookup (dir, name, &e, NULL)) {
-    printf("executing inode open\n");
+    printf("CD- executing inode open at sector: %d\n", e.inode_sector);
     *inode = inode_open (e.inode_sector);
   }
   else
