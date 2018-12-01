@@ -311,6 +311,8 @@ load (const char *cmd_line, void (**eip) (void), void **esp)
   char *cp;
   int i;
 
+  printf("thread failed before loading\n");
+
   /* Allocate and activate page directory. */
   t->pagedir = pagedir_create ();
   if (t->pagedir == NULL) 
