@@ -138,7 +138,7 @@ inode_create (block_sector_t sector, off_t length)
       block_write (fs_device, sector, disk_inode);
 
       size_t sectors_size_this_level; 
-      int i;
+      uint32_t i;
       //1 write direct block
       sectors_size_this_level = DIRECT_BLOCK_COUNT;
       if(sectors < sectors_size_this_level)
@@ -181,7 +181,7 @@ inode_create (block_sector_t sector, off_t length)
         disk_inode->d_indirect = calloc (1, sizeof *disk_inode);
 
         struct indirect_block d_ind_block;
-        int i = 0, j;
+        uint32_t i = 0, j;
         
         while(sectors>0) {
           sectors_size_this_level = DOUBLE_INDIRECT_BLOCK_COUNT;
@@ -289,7 +289,7 @@ inode_close (struct inode *inode)
         size_t sectors = bytes_to_sectors (disk_inode->length);
 
         size_t sectors_size_this_level;
-        int i;
+        uint32_t i;
         //1 free direct block
         sectors_size_this_level = DIRECT_BLOCK_COUNT;
         if(sectors < sectors_size_this_level)
@@ -325,7 +325,7 @@ inode_close (struct inode *inode)
           block_read(fs_device, disk_inode->d_indirect, &blocks_this_level);
 
           block_sector_t blocks_next_level[INDIRECT_BLOCK_COUNT];
-          int i = 0, j;
+          uint32_t i = 0, j;
           
           while(sectors>0) {
             sectors_size_this_level = DOUBLE_INDIRECT_BLOCK_COUNT;
