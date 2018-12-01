@@ -287,6 +287,7 @@ run_task (char **argv)
 #ifdef USERPROG
   process_wait (process_execute (task));
 #else
+  printf("shouldn't have come here\n");
   run_test (task);
 #endif
   printf ("Execution of '%s' complete.\n", task);
