@@ -62,6 +62,7 @@ process_execute (const char *file_name)
         tid = TID_ERROR;
     }
 
+  printf("tid is: %d", tid);
   return tid;
 }
 
