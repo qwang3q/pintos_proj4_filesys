@@ -180,7 +180,7 @@ thread_create (const char *name, int priority,
   if (t == NULL)
     return TID_ERROR;
   
-  printf("failed palloc\n");
+  printf("didn't fail palloc\n");
 
   /* Initialize thread. */
   init_thread (t, name, priority);
