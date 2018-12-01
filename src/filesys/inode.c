@@ -172,42 +172,44 @@ inode_create (block_sector_t sector, off_t length)
 
           // Associate this new data block arrays with indirect pointers
           block_write(fs_device, disk_inode->indirect, &ind_block->blocks);
-
-          sectors -= sectors_size_this_level;
         }
       }
+
+      sectors -= sectors_size_this_level;
 
       //3 write double indirect block
       if(sectors>0) {
-        disk_inode->d_indirect = calloc (1, sizeof *disk_inode);
+        struct indirect_block * d_ind_block;
+        d_ind_block = calloc (1, sizeof *d_ind_block);
 
-        struct indirect_block d_ind_block;
         uint32_t i = 0, j;
-        
-        while(sectors>0) {
-          sectors_size_this_level = DOUBLE_INDIRECT_BLOCK_COUNT;
-          if(sectors < sectors_size_this_level)
-            sectors_size_this_level = sectors;
 
-          struct indirect_block ind_block;
-          for(j=0; j<sectors_size_this_level; j++) {
-            if (free_map_allocate (1, &ind_block.blocks[j])) 
-            {
-              block_write (fs_device, ind_block.blocks[j], zeros); 
+        if (free_map_allocate (1, &disk_inode->d_indirect)) { 
+          while(sectors>0) {
+            sectors_size_this_level = DOUBLE_INDIRECT_BLOCK_COUNT;
+            if(sectors < sectors_size_this_level)
+              sectors_size_this_level = sectors;
+
+            struct indirect_block * ind_block;
+            for(j=0; j<sectors_size_this_level; j++) {
+              ind_block = calloc (1, sizeof *ind_block);
+              if (free_map_allocate (1, &ind_block->blocks[j])) 
+              {
+                block_write (fs_device, ind_block->blocks[j], zeros); 
+              }
             }
+
+            block_write(fs_device, d_ind_block->blocks[i], ind_block->blocks);
+
+            sectors -= sectors_size_this_level;
+            i++;
           }
 
-          block_write(fs_device, d_ind_block.blocks[i], ind_block.blocks);
-
-          sectors -= sectors_size_this_level;
-          i++;
+          // Associate this new data block arrays with indirect pointers
+          block_write(fs_device, disk_inode->d_indirect, &d_ind_block->blocks);
         }
-
-        // Associate this new data block arrays with indirect pointers
-          block_write(fs_device, disk_inode->d_indirect, &d_ind_block.blocks);
       }
 
-       
       free (disk_inode);
     }
   return success;
