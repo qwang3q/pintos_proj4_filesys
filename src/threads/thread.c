@@ -186,7 +186,7 @@ thread_create (const char *name, int priority,
   init_thread (t, name, priority);
   tid = t->tid = allocate_tid ();
 
-  printf("pid after init_thread is: %d", tid);
+  printf("pid after init_thread is: %d\n", tid);
 
   /* Stack frame for kernel_thread(). */
   kf = alloc_frame (t, sizeof *kf);
@@ -205,6 +205,8 @@ thread_create (const char *name, int priority,
 
   /* Add to run queue. */
   thread_unblock (t);
+
+  printf("the tid returned is: %d\n", tid);
 
   return tid;
 }
