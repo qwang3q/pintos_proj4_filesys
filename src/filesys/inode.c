@@ -80,9 +80,9 @@ byte_to_sector (const struct inode *inode, off_t pos)
 
   // Indirect blocks
   if(block_index < INDIRECT_BLOCK_COUNT) {
-    block_sector_t blocks[INDIRECT_BLOCK_COUNT];
-    block_read(fs_device, inode->data.indirect, &blocks);
-    return blocks[block_index];
+    block_sector_t ind_blocks[INDIRECT_BLOCK_COUNT];
+    block_read(fs_device, inode->data.indirect, &ind_blocks);
+    return ind_blocks[block_index];
   }
 
   block_index -= INDIRECT_BLOCK_COUNT;
@@ -338,7 +338,7 @@ inode_close (struct inode *inode)
           uint32_t i = 0, j;
           
           while(sectors>0) {
-            sectors_size_this_level = DOUBLE_INDIRECT_BLOCK_COUNT;
+            sectors_size_this_level = INDIRECT_BLOCK_COUNT;
             if(sectors < sectors_size_this_level)
               sectors_size_this_level = sectors;
 
