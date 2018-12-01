@@ -135,8 +135,10 @@ dir_lookup (const struct dir *dir, const char *name,
     printf("CD- executing inode open at sector: %d\n", e.inode_sector);
     *inode = inode_open (e.inode_sector);
   }
-  else
+  else {
+    printf("FAIL- inode look up failed\n");
     *inode = NULL;
+  }
   
   printf("inode open result: %s\n", inode);
 
