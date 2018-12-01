@@ -159,21 +159,22 @@ inode_create (block_sector_t sector, off_t length)
         sectors_size_this_level = sectors;
 
       if(sectors_size_this_level>0) {
-        disk_inode->indirect = calloc (1, sizeof *disk_inode);
+        struct indirect_block * ind_block;
+        ind_block = calloc (1, sizeof *ind_block);
 
-        struct indirect_block ind_block;
-        
-        for(i=0; i<sectors_size_this_level; i++) {
-          if (free_map_allocate (1, &ind_block.blocks[i])) 
-          {
-            block_write (fs_device, ind_block.blocks[i], zeros); 
+        if (free_map_allocate (1, &disk_inode->indirect)) { 
+          for(i=0; i<sectors_size_this_level; i++) {
+            if (free_map_allocate (1, &ind_block->blocks[i])) 
+            {
+              block_write (fs_device, ind_block->blocks[i], zeros); 
+            }
           }
+
+          // Associate this new data block arrays with indirect pointers
+          block_write(fs_device, disk_inode->indirect, &ind_block->blocks);
+
+          sectors -= sectors_size_this_level;
         }
-
-        // Associate this new data block arrays with indirect pointers
-        block_write(fs_device, disk_inode->indirect, &ind_block.blocks);
-
-        sectors -= sectors_size_this_level;
       }
 
       //3 write double indirect block
