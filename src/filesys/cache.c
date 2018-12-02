@@ -141,10 +141,6 @@ cache_get_block(block_sector_t d_sector) {
 
   lock_release(&cache_lock);
 
-  // read ahead
-  block_sector_t next_block = d_sector + 1;
-  thread_create("cache_read_ahead", 0, cache_read_ahead, &next_block);
-
   return i_target_block;
 }
 
@@ -153,6 +149,10 @@ read_from_cache(block_sector_t sector_idx, uint8_t * buffer, int sector_ofs, int
   int i_block = cache_get_block(sector_idx);
   memcpy(buffer, cache_all_blocks[i_block].block + sector_ofs, chunk_size);
   cache_all_blocks[i_block].c_in_use--;
+
+  // read ahead
+  block_sector_t next_block = sector_idx + 1;
+  thread_create("cache_read_ahead", 0, cache_read_ahead, &next_block);
 }
 
 void
@@ -161,4 +161,8 @@ write_to_cache(block_sector_t sector_idx, int sector_ofs, uint8_t * buffer, int 
   memcpy(cache_all_blocks[i_block].block + sector_ofs, buffer, chunk_size);
   cache_all_blocks[i_block].dirty = true;
   cache_all_blocks[i_block].c_in_use--;
+
+  // read ahead
+  block_sector_t next_block = sector_idx + 1;
+  thread_create("cache_read_ahead", 0, cache_read_ahead, &next_block);
 }
