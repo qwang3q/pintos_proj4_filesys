@@ -98,13 +98,6 @@ cache_evict(void) {
   }
 }
 
-void
-cache_read_ahead(void *aux) {
-  block_sector_t next_block = *(block_sector_t *)aux;
-  cache_get_block(next_block);
-  free(aux);
-}
-
 int
 cache_get_block(block_sector_t d_sector) {
   lock_acquire(&cache_lock);
@@ -140,10 +133,6 @@ cache_get_block(block_sector_t d_sector) {
   }
 
   lock_release(&cache_lock);
-
-  // read ahead
-  block_sector_t next_block = d_sector + 1;
-  thread_create("cache_read_ahead", 0, cache_read_ahead, &next_block);
 
   return i_target_block;
 }
