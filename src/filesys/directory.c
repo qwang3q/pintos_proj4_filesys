@@ -203,6 +203,7 @@ dir_add (struct dir *dir, const char *name, block_sector_t inode_sector)
   e.in_use = true;
   strlcpy (e.name, name, sizeof e.name);
   e.inode_sector = inode_sector;
+  printf("CD- directory::dir_add initialize inode_write_at at: %d\n", dir->inode);
   success = inode_write_at (dir->inode, &e, sizeof e, ofs) == sizeof e;
 
  done:
@@ -237,6 +238,7 @@ dir_remove (struct dir *dir, const char *name)
 
   /* Erase directory entry. */
   e.in_use = false;
+  printf("CD- directory::dir_remove initialize inode_write_at at: %d\n", dir->inode);
   if (inode_write_at (dir->inode, &e, sizeof e, ofs) != sizeof e) 
     goto done;
 
