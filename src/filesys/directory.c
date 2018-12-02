@@ -138,7 +138,7 @@ dir_lookup (const struct dir *dir, const char *name,
   ASSERT (dir != NULL);
   ASSERT (name != NULL);
 
-  printf("CD- file name is %s\n", name);
+  printf("CD- lookup from dir_lookup\n");
 
   if (lookup (dir, name, &e, NULL)) {
     printf("CD- executing inode open at sector: %d\n", e.inode_sector);
@@ -174,6 +174,7 @@ dir_add (struct dir *dir, const char *name, block_sector_t inode_sector)
   if (*name == '\0' || strlen (name) > NAME_MAX)
     return false;
 
+  printf("CD- lookup from dir_add\n");
   /* Check that NAME is not in use. */
   if (lookup (dir, name, NULL, NULL))
     goto done;
@@ -215,6 +216,7 @@ dir_remove (struct dir *dir, const char *name)
   ASSERT (name != NULL);
 
   printf("CD- BAD deleted dir: %d\n", dir->inode->sector);
+  printf("CD- lookup from dir_remove\n");
 
   /* Find directory entry. */
   if (!lookup (dir, name, &e, &ofs))
