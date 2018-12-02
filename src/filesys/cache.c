@@ -126,7 +126,7 @@ cache_get_block(block_sector_t d_sector) {
     cache_all_blocks[i_target_block].free = false;
     cache_all_blocks[i_target_block].c_in_use++;
     cache_all_blocks[i_target_block].accessed = true;
-    block_read(fs_device, cache_all_blocks[i_target_block].disk_sector, &cache_all_blocks[i_target_block]);
+    block_read(fs_device, cache_all_blocks[i_target_block].disk_sector, &cache_all_blocks[i_target_block].block);
   } else {
     cache_all_blocks[i_target_block].c_in_use++;
     cache_all_blocks[i_target_block].accessed = true;
