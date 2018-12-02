@@ -152,7 +152,8 @@ read_from_cache(block_sector_t sector_idx, uint8_t * buffer, int sector_ofs, int
 
 void
 write_to_cache(block_sector_t sector_idx, int sector_ofs, uint8_t * buffer, int chunk_size) {
-  int i_block = cache_get_block(sector_idx);      
+  int i_block = cache_get_block(sector_idx);
+  printf("CD- someone writing to sector: %d\n", sector_idx);      
   memcpy(cache_all_blocks[i_block].block + sector_ofs, buffer, chunk_size);
   cache_all_blocks[i_block].dirty = true;
   cache_all_blocks[i_block].c_in_use--;
