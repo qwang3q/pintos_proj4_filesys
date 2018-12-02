@@ -112,6 +112,7 @@ cache_get_block(block_sector_t d_sector) {
   }
 
   if(i_target_block == -1) {
+    printf("CD- found in cache\n");
     // If come here the block is not in cache yet, obtain a free block
     i_target_block = cache_get_free_block();
 
@@ -128,6 +129,7 @@ cache_get_block(block_sector_t d_sector) {
     cache_all_blocks[i_target_block].accessed = true;
     block_read(fs_device, cache_all_blocks[i_target_block].disk_sector, &cache_all_blocks[i_target_block].block);
   } else {
+    printf("CD- not  in cache\n");
     cache_all_blocks[i_target_block].c_in_use++;
     cache_all_blocks[i_target_block].accessed = true;
   }
