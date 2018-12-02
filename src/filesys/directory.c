@@ -214,6 +214,8 @@ dir_remove (struct dir *dir, const char *name)
   ASSERT (dir != NULL);
   ASSERT (name != NULL);
 
+  printf("CD- BAD deleted dir: %d\n", dir->inode->sector);
+
   /* Find directory entry. */
   if (!lookup (dir, name, &e, &ofs))
     goto done;
