@@ -35,13 +35,8 @@ struct dir *
 dir_open (struct inode *inode) 
 {
   printf("CD- directory::dir_open: inode sector is: %d, ", inode->sector);
-  printf("length: %d ", inode->data.length);
-  printf("data: ");
-  int i;
-  for(i = 0; i < 1; i++) {
-    printf("%d ", inode->data.direct_blocks[i]);
-  }
-  printf("\n");
+  printf("length: %d \n", inode->data.length);
+  
 
   struct dir *dir = calloc (1, sizeof *dir);
   if (inode != NULL && dir != NULL)
@@ -112,6 +107,13 @@ lookup (const struct dir *dir, const char *name,
   printf("CD- dir for searching is: %d\n", &dir->inode);
   printf("CD- dir phys addr is: %d\n", this_inode->sector);
   printf("CD- e mem addr is: %d\n", &e);
+
+  printf("data: ");
+  int i;
+  for(i = 0; i < 1; i++) {
+    printf("%d ", dir->inode->data.direct_blocks[i]);
+  }
+  printf("\n");
 
   for (ofs = 0; inode_read_at (dir->inode, &e, sizeof e, ofs) == sizeof e;
        ofs += sizeof e) 
