@@ -104,8 +104,6 @@ inode_create (block_sector_t sector, off_t length)
 
       static char zeros[BLOCK_SECTOR_SIZE];
 
-      block_write (fs_device, sector, disk_inode);
-
       size_t sectors_size_this_level; 
       uint32_t i;
       //1 write direct block
@@ -185,6 +183,8 @@ inode_create (block_sector_t sector, off_t length)
           block_write(fs_device, disk_inode->d_indirect, &d_ind_block->blocks);
         }
       }
+
+      block_write (fs_device, sector, disk_inode);
 
       free (disk_inode);
     }
