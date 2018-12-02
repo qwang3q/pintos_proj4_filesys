@@ -110,7 +110,8 @@ lookup (const struct dir *dir, const char *name,
     // printf("CD- iter dir, get e.in_use: %s\n", e.in_use);
     printf("CD- comp name with name: %s, ", name);
     printf("%s, ", e.name);
-    printf("e mem addr is: %d\n", &e);
+    printf("e mem addr is: %d, ", &e);
+    printf("offset is: %d\n", ofs);
     if (e.in_use && !strcmp (name, e.name)) 
       {
         printf("CD- found inode in dir\n");
