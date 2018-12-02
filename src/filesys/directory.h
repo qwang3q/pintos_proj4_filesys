@@ -2,6 +2,7 @@
 #define FILESYS_DIRECTORY_H
 
 #include <stdio.h>
+#include <string.h>
 #include <stdbool.h>
 #include <stddef.h>
 #include "devices/block.h"
