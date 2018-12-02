@@ -38,6 +38,7 @@ byte_to_sector (const struct inode *inode, off_t pos)
     return -1;
   
   uint32_t block_index = pos / BLOCK_SECTOR_SIZE;
+  printf("CD- block index is: %d\n", block_index);
 
   // Direct blocks
   if(block_index < DIRECT_BLOCK_COUNT) {
