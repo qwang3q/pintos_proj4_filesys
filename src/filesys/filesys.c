@@ -75,6 +75,8 @@ filesys_open (const char *name)
 
   if (dir != NULL){
     printf("CD- filesys_open: invoke dir_lookup\n");
+    printf("CD- \tpos: %d ", dir->pos);
+    printf("CD- sector: %d ", dir->inode->sector);
     dir_lookup (dir, name, &inode);
   }
   dir_close (dir);

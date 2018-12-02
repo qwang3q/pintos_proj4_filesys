@@ -32,7 +32,7 @@ cache_init(void) {
   }
 
   // Set up a maintenance thread cleaning up
-  //thread_create("cache_maintenance_job", 0, cache_maintenance_job, NULL);
+  thread_create("cache_maintenance_job", 0, cache_maintenance_job, NULL);
 }
 
 void
@@ -129,11 +129,12 @@ cache_get_block(block_sector_t d_sector) {
     cache_all_blocks[i_target_block].accessed = true;
     block_read(fs_device, cache_all_blocks[i_target_block].disk_sector, &cache_all_blocks[i_target_block].block);
   } else {
-    printf("CD- found  in cache\n");
-    printf("CD- disk sector is: %d\n", cache_all_blocks[i_target_block].disk_sector);
+    printf("CD- found  in cache, disk sector is: %d\n", cache_all_blocks[i_target_block].disk_sector);
     cache_all_blocks[i_target_block].c_in_use++;
     cache_all_blocks[i_target_block].accessed = true;
   }
+
+  cache_all_blocks[i_target_block].block
 
   lock_release(&cache_lock);
 
