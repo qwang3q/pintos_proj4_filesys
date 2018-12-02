@@ -33,6 +33,9 @@ static block_sector_t
 byte_to_sector (const struct inode *inode, off_t pos) 
 {
   ASSERT (inode != NULL);
+
+  block_read(fs_device, inode->sector, &inode->data);
+
   if (pos >= inode->data.length)
     return -1;
   
