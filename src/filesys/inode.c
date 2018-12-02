@@ -366,6 +366,8 @@ inode_read_at (struct inode *inode, void *buffer_, off_t size, off_t offset)
       // CHANGE: Read from cache
       read_from_cache(sector_idx, buffer + bytes_read, sector_ofs, chunk_size);
       
+      printf("CD- %s\n", *(buffer + bytes_read));
+
       /* Advance. */
       size -= chunk_size;
       offset += chunk_size;
