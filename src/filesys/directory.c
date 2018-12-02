@@ -103,6 +103,8 @@ lookup (const struct dir *dir, const char *name,
   printf("CD- dir phys addr is: %d\n", this_inode->sector);
   printf("CD- e mem addr is: %d\n", &e);
 
+  this_inode->data;
+
   printf("data: ");
   int i;
   for(i = 0; i < 1; i++) {
@@ -114,10 +116,10 @@ lookup (const struct dir *dir, const char *name,
        ofs += sizeof e) 
   {
     // printf("CD- iter dir, get e.in_use: %s\n", e.in_use);
-    printf("CD- comp name with name: %s, ", name);
-    printf("%s, ", e.name);
-    printf("e mem addr is: %d, ", &e);
-    printf("offset is: %d\n", ofs);
+    // printf("CD- comp name with name: %s, ", name);
+    // printf("%s, ", e.name);
+    // printf("e mem addr is: %d, ", &e);
+    // printf("offset is: %d\n", ofs);
     if (e.in_use && !strcmp (name, e.name)) 
       {
         printf("CD- found inode in dir\n");
