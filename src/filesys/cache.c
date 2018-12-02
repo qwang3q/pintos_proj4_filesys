@@ -13,6 +13,8 @@ Cache file blocks, 64 sectors in total
 #include "threads/thread.h"
 #include "filesys/cache.h"
 
+#define INODE_INVALID_BLOCK_SECTOR (block_sector_t)-1
+
 void
 new_cache_block(int i_block) {
     cache_all_blocks[i_block].free = true;
@@ -101,6 +103,8 @@ cache_evict(void) {
 void
 cache_read_ahead(void *aux) {
   block_sector_t next_block = *(block_sector_t *)aux;
+  if(next_block >= INODE_INVALID_BLOCK_SECTOR)
+    return;
   cache_get_block(next_block);
   free(aux);
 }
