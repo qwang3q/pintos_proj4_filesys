@@ -393,6 +393,9 @@ inode_write_at (struct inode *inode, const void *buffer_, off_t size,
   if (inode->deny_write_cnt)
     return 0;
 
+  if (size + offset > inode->data->length)
+    inode_extend(inode, size + offset);
+
   while (size > 0) 
     {
       /* Sector to write, starting byte offset within sector. */
@@ -420,6 +423,111 @@ inode_write_at (struct inode *inode, const void *buffer_, off_t size,
   // free (bounce);
 
   return bytes_written;
+}
+
+void
+inode_extend (struct inode *inode, offt_t length) {
+  struct inode_disk * disk_inode = &inode->data;
+  size_t sectors = bytes_to_sectors (length);
+  size_t orig_sectors = bytes_to_sectors (disk_inode->length);
+
+  size_t sectors_size_this_level;
+  uint32_t i;
+  static char zeros[BLOCK_SECTOR_SIZE];
+
+  //1 write direct block
+  sectors_size_this_level = DIRECT_BLOCK_COUNT;
+  if(sectors < sectors_size_this_level)
+    sectors_size_this_level = sectors;
+  
+  for(i=0; i<sectors_size_this_level; i++) {
+    if (i < orig_sectors)
+      continue;
+
+    if (free_map_allocate (1, &disk_inode->direct_blocks[i])) 
+    {
+      block_write (fs_device, disk_inode->direct_blocks[i], zeros); 
+    }
+  }
+
+  sectors -= sectors_size_this_level;
+  orig_sectors -= sectors_size_this_level;
+
+  //2 write indirect block
+  sectors_size_this_level = INDIRECT_BLOCK_COUNT;
+  if(sectors < sectors_size_this_level)
+    sectors_size_this_level = sectors;
+
+  if(sectors_size_this_level>0) {
+    struct indirect_block * ind_block;
+
+    if(orig_sectors == 0) {
+      ind_block = calloc (1, sizeof *ind_block);
+      free_map_allocate (1, &disk_inode->indirect);
+    } else {
+      block_read(fs_device, disk_inode->indirect, &ind_block->blocks);
+    }
+
+    for(i=0; i<sectors_size_this_level; i++) {
+      if (i < orig_sectors) {
+        continue;
+      }
+        
+      if (free_map_allocate (1, &ind_block->blocks[i])) 
+      {
+        block_write (fs_device, ind_block->blocks[i], zeros); 
+      }
+    }
+
+    // Associate this new data block arrays with indirect pointers
+    block_write(fs_device, disk_inode->indirect, &ind_block->blocks);
+  }
+
+  sectors -= sectors_size_this_level;
+  orig_sectors -= sectors_size_this_level;
+
+  //3 write double indirect block
+  if(sectors>0) {
+    struct indirect_block * d_ind_block;
+    uint32_t i = 0, j;
+
+    if(orig_sectors == 0) {
+      d_ind_block = calloc (1, sizeof *d_ind_block);
+      free_map_allocate (1, &disk_inode->d_indirect
+    } else {
+      block_read(fs_device, disk_inode->d_indirect, &d_ind_block->blocks);
+    }
+    
+    while(sectors>0) {
+      sectors_size_this_level = DOUBLE_INDIRECT_BLOCK_COUNT;
+      if(sectors < sectors_size_this_level)
+        sectors_size_this_level = sectors;
+
+      struct indirect_block * ind_block;
+      for(j=0; j<sectors_size_this_level; j++) {
+        if (i * INDIRECT_BLOCK_COUNT + j < orig_sectors)
+          continue;
+    
+        ind_block = calloc (1, sizeof *ind_block);
+        if (free_map_allocate (1, &ind_block->blocks[j])) 
+        {
+          block_write (fs_device, ind_block->blocks[j], zeros); 
+        }
+      }
+
+      block_write(fs_device, d_ind_block->blocks[i], ind_block->blocks);
+
+      sectors -= sectors_size_this_level;
+      i++;
+    }
+
+    // Associate this new data block arrays with indirect pointers
+    block_write(fs_device, disk_inode->d_indirect, &d_ind_block->blocks);
+  }
+
+  block_write (fs_device, sector, disk_inode);
+
+  inode->data->length = length;
 }
 
 /* Disables writes to INODE.
