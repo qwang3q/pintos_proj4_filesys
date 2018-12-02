@@ -35,8 +35,11 @@ struct dir *
 dir_open (struct inode *inode) 
 {
   printf("CD- directory::dir_open: inode sector is: %d, ", inode->sector);
-  printf("length: %d", inode->data.length);
-  printf("data: %s\n", inode->data.direct_blocks);
+  printf("length: %d ", inode->data.length);
+  printf("data: ");
+  for(int i = 0; i < 1; i++) {
+    printf(inode->data.direct_blocks[i]);
+  }
   struct dir *dir = calloc (1, sizeof *dir);
   if (inode != NULL && dir != NULL)
     {
