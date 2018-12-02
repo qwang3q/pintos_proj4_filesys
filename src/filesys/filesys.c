@@ -79,7 +79,7 @@ filesys_open (const char *name)
   }
   dir_close (dir);
 
-  printf("CD - filesys_open get inode: %s\n", inode);
+  printf("CD - filesys_open get inode: %d\n", &inode);
 
   return file_open (inode);
 }
