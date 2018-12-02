@@ -6,7 +6,12 @@
 #include "filesys/inode.h"
 #include "threads/malloc.h"
 
-
+/* A directory. */
+struct dir 
+  {
+    struct inode *inode;                /* Backing store. */
+    off_t pos;                          /* Current position. */
+  };
 
 /* A single directory entry. */
 struct dir_entry 
@@ -29,10 +34,6 @@ dir_create (block_sector_t sector, size_t entry_cnt)
 struct dir *
 dir_open (struct inode *inode) 
 {
-  printf("CD- directory::dir_open: inode sector is: %d, ", inode->sector);
-  printf("length: %d ", inode->data.length);
-  printf("inode mem addr: %d\n", &inode);
-
   struct dir *dir = calloc (1, sizeof *dir);
   if (inode != NULL && dir != NULL)
     {
@@ -97,39 +98,16 @@ lookup (const struct dir *dir, const char *name,
   ASSERT (dir != NULL);
   ASSERT (name != NULL);
 
-  struct inode * this_inode = dir->inode;
-
-  printf("CD- dir for searching is: %d\n", &dir->inode);
-  printf("CD- dir phys addr is: %d\n", this_inode->sector);
-  printf("CD- e mem addr is: %d\n", &e);
-
-  this_inode->data;
-
-  printf("data: ");
-  int i;
-  for(i = 0; i < 1; i++) {
-    printf("%d ", dir->inode->data.direct_blocks[i]);
-  }
-  printf("\n");
-
   for (ofs = 0; inode_read_at (dir->inode, &e, sizeof e, ofs) == sizeof e;
        ofs += sizeof e) 
-  {
-    // printf("CD- iter dir, get e.in_use: %s\n", e.in_use);
-    // printf("CD- comp name with name: %s, ", name);
-    // printf("%s, ", e.name);
-    // printf("e mem addr is: %d, ", &e);
-    // printf("offset is: %d\n", ofs);
     if (e.in_use && !strcmp (name, e.name)) 
       {
-        printf("CD- found inode in dir\n");
         if (ep != NULL)
           *ep = e;
         if (ofsp != NULL)
           *ofsp = ofs;
         return true;
       }
-  }
   return false;
 }
 
@@ -146,18 +124,10 @@ dir_lookup (const struct dir *dir, const char *name,
   ASSERT (dir != NULL);
   ASSERT (name != NULL);
 
-  printf("CD- lookup from dir_lookup\n");
-
-  if (lookup (dir, name, &e, NULL)) {
-    printf("CD- executing inode open at sector: %d\n", e.inode_sector);
+  if (lookup (dir, name, &e, NULL))
     *inode = inode_open (e.inode_sector);
-  }
-  else {
-    printf("FAIL- inode look up failed\n");
+  else
     *inode = NULL;
-  }
-  
-  printf("inode open result: %s\n", inode);
 
   return *inode != NULL;
 }
@@ -182,7 +152,6 @@ dir_add (struct dir *dir, const char *name, block_sector_t inode_sector)
   if (*name == '\0' || strlen (name) > NAME_MAX)
     return false;
 
-  printf("CD- lookup from dir_add\n");
   /* Check that NAME is not in use. */
   if (lookup (dir, name, NULL, NULL))
     goto done;
@@ -203,7 +172,6 @@ dir_add (struct dir *dir, const char *name, block_sector_t inode_sector)
   e.in_use = true;
   strlcpy (e.name, name, sizeof e.name);
   e.inode_sector = inode_sector;
-  printf("CD- directory::dir_add initialize inode_write_at at: %d\n", dir->inode);
   success = inode_write_at (dir->inode, &e, sizeof e, ofs) == sizeof e;
 
  done:
@@ -224,9 +192,6 @@ dir_remove (struct dir *dir, const char *name)
   ASSERT (dir != NULL);
   ASSERT (name != NULL);
 
-  printf("CD- BAD deleted dir: %d\n", dir->inode->sector);
-  printf("CD- lookup from dir_remove\n");
-
   /* Find directory entry. */
   if (!lookup (dir, name, &e, &ofs))
     goto done;
@@ -238,7 +203,6 @@ dir_remove (struct dir *dir, const char *name)
 
   /* Erase directory entry. */
   e.in_use = false;
-  printf("CD- directory::dir_remove initialize inode_write_at at: %d\n", dir->inode);
   if (inode_write_at (dir->inode, &e, sizeof e, ofs) != sizeof e) 
     goto done;
 

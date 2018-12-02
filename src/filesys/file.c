@@ -20,7 +20,6 @@ file_open (struct inode *inode)
   struct file *file = calloc (1, sizeof *file);
   if (inode != NULL && file != NULL)
     {
-      printf("CD- file::file_open: inode isn't null\n");
       file->inode = inode;
       file->pos = 0;
       file->deny_write = false;
@@ -95,10 +94,6 @@ file_read_at (struct file *file, void *buffer, off_t size, off_t file_ofs)
 off_t
 file_write (struct file *file, const void *buffer, off_t size) 
 {
-  printf("CD- file::file_write initialize inode_write_at at: %d ", file->inode);
-  printf("size: %d ", size);
-  printf("file length: %d", file->inode->data.length);
-  printf("pos: %d\n", file->pos);
   off_t bytes_written = inode_write_at (file->inode, buffer, size, file->pos);
   file->pos += bytes_written;
   return bytes_written;
@@ -115,7 +110,6 @@ off_t
 file_write_at (struct file *file, const void *buffer, off_t size,
                off_t file_ofs) 
 {
-  printf("CD- file::file_write_at initialize inode_write_at at: %d\n", file->inode);
   return inode_write_at (file->inode, buffer, size, file_ofs);
 }
 

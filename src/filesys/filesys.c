@@ -73,15 +73,9 @@ filesys_open (const char *name)
   struct dir *dir = dir_open_root ();
   struct inode *inode = NULL;
 
-  if (dir != NULL){
-    printf("CD- filesys_open: invoke dir_lookup\n");
-    printf("CD- \tpos: %d ", dir->pos);
-    printf("CD- sector: %d ", dir->inode->sector);
+  if (dir != NULL)
     dir_lookup (dir, name, &inode);
-  }
   dir_close (dir);
-
-  printf("CD - filesys_open get inode: %d\n", &inode);
 
   return file_open (inode);
 }
