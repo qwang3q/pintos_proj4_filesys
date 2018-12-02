@@ -311,7 +311,7 @@ load (const char *cmd_line, void (**eip) (void), void **esp)
   char *cp;
   int i;
 
-  printf("thread failed within loading\n");
+  printf("CD- process::load: thread failed within loading\n");
 
   /* Allocate and activate page directory. */
   t->pagedir = pagedir_create ();
@@ -328,6 +328,7 @@ load (const char *cmd_line, void (**eip) (void), void **esp)
     *cp = '\0';
 
   /* Open executable file. */
+  printf("CD- process::load: invoke filesys_open\n");
   t->bin_file = file = filesys_open (file_name);
   if (file == NULL) 
     {
