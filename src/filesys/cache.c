@@ -130,7 +130,8 @@ cache_get_block(block_sector_t d_sector) {
     block_read(fs_device, cache_all_blocks[i_target_block].disk_sector, &cache_all_blocks[i_target_block].block);
   } else {
     printf("CD- found  in cache, disk sector is: %d ", cache_all_blocks[i_target_block].disk_sector);
-    printf("block is: %d\n", cache_all_blocks[i_target_block].block);
+    printf("block is: %d ", cache_all_blocks[i_target_block].block);
+    printf("val is: %d\n", * cache_all_blocks[i_target_block].block);
     cache_all_blocks[i_target_block].c_in_use++;
     cache_all_blocks[i_target_block].accessed = true;
   }
