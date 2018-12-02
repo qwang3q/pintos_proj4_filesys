@@ -56,11 +56,9 @@ process_execute (const char *file_name)
   if (tid != TID_ERROR)
     {
       sema_down (&exec.load_done);
-      printf("sema down state: %s\n", exec.success);
       if (exec.success)
         list_push_back (&thread_current ()->children, &exec.wait_status->elem);
       else
-        printf("seems like sema down failed\n");
         tid = TID_ERROR;
     }
 
