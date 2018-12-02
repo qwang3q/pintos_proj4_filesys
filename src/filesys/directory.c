@@ -99,6 +99,7 @@ lookup (const struct dir *dir, const char *name,
   ASSERT (name != NULL);
 
   printf("CD- dir for searching is: %d\n", &dir->inode);
+  printf("CD- e mem addr is: %d\n", &e);
 
   for (ofs = 0; inode_read_at (dir->inode, &e, sizeof e, ofs) == sizeof e;
        ofs += sizeof e) 
