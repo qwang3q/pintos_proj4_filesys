@@ -134,7 +134,7 @@ cache_get_block(block_sector_t d_sector) {
     cache_all_blocks[i_target_block].accessed = true;
   }
 
-  cache_all_blocks[i_target_block].block
+  // cache_all_blocks[i_target_block].block
 
   lock_release(&cache_lock);
 
