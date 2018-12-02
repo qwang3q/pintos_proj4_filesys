@@ -106,6 +106,7 @@ lookup (const struct dir *dir, const char *name,
     printf("%s\n", e.name);
     if (e.in_use && !strcmp (name, e.name)) 
       {
+        printf("CD- found inode in dir\n");
         if (ep != NULL)
           *ep = e;
         if (ofsp != NULL)
