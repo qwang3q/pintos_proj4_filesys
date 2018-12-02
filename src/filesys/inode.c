@@ -9,30 +9,8 @@
 #include "filesys/cache.h"
 #include "devices/block.h"
 
-/* size of direct, indirect, double indirect blocks */
-// use all unused spaces
-#define DIRECT_BLOCK_COUNT 124
-// 128 number of pointers allowed for each sector
-#define INDIRECT_BLOCK_COUNT ( BLOCK_SECTOR_SIZE / sizeof (block_sector_t))
-// 128 pointers at indirect blocks
-#define DOUBLE_INDIRECT_BLOCK_COUNT INDIRECT_BLOCK_COUNT * INDIRECT_BLOCK_COUNT
-
 /* Identifies an inode. */
 #define INODE_MAGIC 0x494e4f44
-
-/* On-disk inode.
-   Must be exactly BLOCK_SECTOR_SIZE bytes long. */
-struct inode_disk
-  {
-    /* First data sector. */
-    block_sector_t direct_blocks[DIRECT_BLOCK_COUNT];
-    block_sector_t indirect;            // indirect blocks
-    block_sector_t d_indirect;          // double indirect blocks
-
-    off_t length;                       /* File size in bytes. */
-    unsigned magic;                     /* Magic number. */
-    //uint32_t unused[125];               /* Not used. */
-  };
 
 struct indirect_block
 {
