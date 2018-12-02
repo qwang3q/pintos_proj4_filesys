@@ -32,7 +32,7 @@ cache_init(void) {
   }
 
   // Set up a maintenance thread cleaning up
-  thread_create("cache_maintenance_job", 0, cache_maintenance_job, NULL);
+  //thread_create("cache_maintenance_job", 0, cache_maintenance_job, NULL);
 }
 
 void
