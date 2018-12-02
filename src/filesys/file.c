@@ -97,6 +97,7 @@ file_write (struct file *file, const void *buffer, off_t size)
 {
   printf("CD- file::file_write initialize inode_write_at at: %d ", file->inode);
   printf("size: %d ", size);
+  printf("file length: %d", file->inode->data.length);
   printf("pos: %d\n", file->pos);
   off_t bytes_written = inode_write_at (file->inode, buffer, size, file->pos);
   file->pos += bytes_written;
