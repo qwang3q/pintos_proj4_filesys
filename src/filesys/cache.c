@@ -112,7 +112,6 @@ cache_get_block(block_sector_t d_sector) {
   }
 
   if(i_target_block == -1) {
-    printf("CD- not in cache\n");
     // If come here the block is not in cache yet, obtain a free block
     i_target_block = cache_get_free_block();
 
@@ -129,9 +128,9 @@ cache_get_block(block_sector_t d_sector) {
     cache_all_blocks[i_target_block].accessed = true;
     block_read(fs_device, cache_all_blocks[i_target_block].disk_sector, &cache_all_blocks[i_target_block].block);
   } else {
-    printf("CD- found  in cache, disk sector is: %d ", cache_all_blocks[i_target_block].disk_sector);
-    printf("block is: %d ", cache_all_blocks[i_target_block].block);
-    printf("val is: %d\n", * cache_all_blocks[i_target_block].block);
+    // printf("CD- found  in cache, disk sector is: %d ", cache_all_blocks[i_target_block].disk_sector);
+    // printf("block is: %d ", cache_all_blocks[i_target_block].block);
+    // printf("val is: %d\n", * cache_all_blocks[i_target_block].block);
     cache_all_blocks[i_target_block].c_in_use++;
     cache_all_blocks[i_target_block].accessed = true;
   }
@@ -153,7 +152,6 @@ read_from_cache(block_sector_t sector_idx, uint8_t * buffer, int sector_ofs, int
 void
 write_to_cache(block_sector_t sector_idx, int sector_ofs, uint8_t * buffer, int chunk_size) {
   int i_block = cache_get_block(sector_idx);
-  printf("CD- someone writing to sector: %d\n", sector_idx);      
   memcpy(cache_all_blocks[i_block].block + sector_ofs, buffer, chunk_size);
   cache_all_blocks[i_block].dirty = true;
   cache_all_blocks[i_block].c_in_use--;

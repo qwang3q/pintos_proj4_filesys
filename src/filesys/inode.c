@@ -38,7 +38,6 @@ byte_to_sector (const struct inode *inode, off_t pos)
     return -1;
   
   uint32_t block_index = pos / BLOCK_SECTOR_SIZE;
-  printf("CD- block index is: %d\n", block_index);
 
   // Direct blocks
   if(block_index < DIRECT_BLOCK_COUNT) {
@@ -367,8 +366,6 @@ inode_read_at (struct inode *inode, void *buffer_, off_t size, off_t offset)
 
       // CHANGE: Read from cache
       read_from_cache(sector_idx, buffer + bytes_read, sector_ofs, chunk_size);
-      
-      printf("CD- sector idx is: %d\n", sector_idx);
 
       /* Advance. */
       size -= chunk_size;
@@ -400,7 +397,6 @@ inode_write_at (struct inode *inode, const void *buffer_, off_t size,
     {
       /* Sector to write, starting byte offset within sector. */
       block_sector_t sector_idx = byte_to_sector (inode, offset);
-      printf("CD- sector is: %d\n", sector_idx);
       int sector_ofs = offset % BLOCK_SECTOR_SIZE;
 
       /* Bytes left in inode, bytes left in sector, lesser of the two. */
