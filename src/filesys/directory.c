@@ -38,8 +38,10 @@ dir_open (struct inode *inode)
   printf("length: %d ", inode->data.length);
   printf("data: ");
   for(int i = 0; i < 1; i++) {
-    printf(inode->data.direct_blocks[i]);
+    printf("%d ", inode->data.direct_blocks[i]);
   }
+  printf("\n");
+
   struct dir *dir = calloc (1, sizeof *dir);
   if (inode != NULL && dir != NULL)
     {
