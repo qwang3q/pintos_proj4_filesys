@@ -504,11 +504,19 @@ inode_extend (struct inode *inode, offt_t length) {
         sectors_size_this_level = sectors;
 
       struct indirect_block * ind_block;
+      if(orig_sectors == 0) {
+        ind_block = calloc (1, sizeof *ind_block);
+        free_map_allocate (1, &disk_inode->d_indirect[i]);
+      } else {
+        block_read(fs_device, disk_inode->d_indirect + i, &ind_block->blocks);
+      }
+
       for(j=0; j<sectors_size_this_level; j++) {
-        if (i * INDIRECT_BLOCK_COUNT + j < orig_sectors)
+        // if (i * INDIRECT_BLOCK_COUNT + j < orig_sectors)
+        if (j < orig_sectors)
           continue;
     
-        ind_block = calloc (1, sizeof *ind_block);
+        // ind_block = calloc (1, sizeof *ind_block);
         if (free_map_allocate (1, &ind_block->blocks[j])) 
         {
           block_write (fs_device, ind_block->blocks[j], zeros); 
@@ -518,6 +526,7 @@ inode_extend (struct inode *inode, offt_t length) {
       block_write(fs_device, d_ind_block->blocks[i], ind_block->blocks);
 
       sectors -= sectors_size_this_level;
+      orig_sectors -= sectors_size_this_level;
       i++;
     }
 
