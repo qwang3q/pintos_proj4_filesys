@@ -493,7 +493,7 @@ inode_extend (struct inode *inode, offt_t length) {
 
     if(orig_sectors == 0) {
       d_ind_block = calloc (1, sizeof *d_ind_block);
-      free_map_allocate (1, &disk_inode->d_indirect
+      free_map_allocate (1, &disk_inode->d_indirect);
     } else {
       block_read(fs_device, disk_inode->d_indirect, &d_ind_block->blocks);
     }
