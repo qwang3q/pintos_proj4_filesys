@@ -217,3 +217,30 @@ For write-behind, if a process, or multiple processes simultaneously
 writing random parts of a file, hold them in memory is going to be 
 greatly performant, and writing all to disk at once is also beneficial.
 
+
+FAIL tests/vm/pt-grow-stack
+FAIL tests/vm/pt-grow-pusha
+FAIL tests/vm/pt-big-stk-obj
+FAIL tests/vm/pt-write-code2
+FAIL tests/vm/pt-grow-stk-sc
+FAIL tests/vm/page-linear
+FAIL tests/vm/page-parallel
+FAIL tests/vm/page-merge-seq
+FAIL tests/vm/page-merge-par
+FAIL tests/vm/page-merge-stk
+FAIL tests/vm/page-merge-mm
+FAIL tests/vm/mmap-read
+FAIL tests/vm/mmap-close
+FAIL tests/vm/mmap-overlap
+FAIL tests/vm/mmap-twice
+FAIL tests/vm/mmap-write
+FAIL tests/vm/mmap-exit
+FAIL tests/vm/mmap-shuffle
+FAIL tests/vm/mmap-clean
+FAIL tests/vm/mmap-inherit
+FAIL tests/vm/mmap-misalign
+FAIL tests/vm/mmap-null
+FAIL tests/vm/mmap-over-code
+FAIL tests/vm/mmap-over-data
+FAIL tests/vm/mmap-over-stk
+FAIL tests/vm/mmap-remove
