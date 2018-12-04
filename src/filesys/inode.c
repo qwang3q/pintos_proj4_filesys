@@ -12,6 +12,8 @@
 /* Identifies an inode. */
 #define INODE_MAGIC 0x494e4f44
 
+void inode_extend (struct inode *inode, off_t length);
+
 struct indirect_block
 {
   block_sector_t blocks[INDIRECT_BLOCK_COUNT];
