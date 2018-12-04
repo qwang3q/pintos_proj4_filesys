@@ -534,7 +534,7 @@ inode_extend (struct inode *inode, off_t length) {
     block_write(fs_device, disk_inode->d_indirect, &d_ind_block->blocks);
   }
 
-  block_write (fs_device, sector, disk_inode);
+  block_write (fs_device, sectors, disk_inode);
 
   inode->data.length = length;
 }
