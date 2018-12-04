@@ -536,7 +536,7 @@ inode_extend (struct inode *inode, off_t length) {
 
   block_write (fs_device, sector, disk_inode);
 
-  inode->data->length = length;
+  inode->data.length = length;
 }
 
 /* Disables writes to INODE.
