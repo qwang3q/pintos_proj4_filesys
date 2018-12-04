@@ -426,7 +426,7 @@ inode_write_at (struct inode *inode, const void *buffer_, off_t size,
 }
 
 void
-inode_extend (struct inode *inode, offt_t length) {
+inode_extend (struct inode *inode, off_t length) {
   struct inode_disk * disk_inode = &inode->data;
   size_t sectors = bytes_to_sectors (length);
   size_t orig_sectors = bytes_to_sectors (disk_inode->length);
