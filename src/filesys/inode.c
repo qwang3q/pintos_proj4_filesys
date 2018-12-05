@@ -369,6 +369,11 @@ inode_read_at (struct inode *inode, void *buffer_, off_t size, off_t offset)
       // CHANGE: Read from cache
       read_from_cache(sector_idx, buffer + bytes_read, sector_ofs, chunk_size);
 
+      block_sector_t next_sector_idx = byte_to_sector (inode, offset + BLOCK_SECTOR_SIZE );
+      if(next_sector_idx != -1) {
+        cache_read_ahead(next_sector_idx);
+      }
+
       /* Advance. */
       size -= chunk_size;
       offset += chunk_size;
