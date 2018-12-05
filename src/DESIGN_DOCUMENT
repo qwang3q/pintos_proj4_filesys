@@ -78,9 +78,9 @@ the information is always accurate.
 >> nonzero data, A is not allowed to see all zeros.  Explain how your
 >> code avoids this race.
 Because readers and writers don't block each other, they can access the file
-at the same time. So A would keep on reading while B is writing, and 
-
-TODO
+at the same time. So A would keep on reading while B is writing, and the outcome is determined based on the order of completion.
+If B writes fast enough and finished updating length before A reads, then A gets to see all.
+If B writes not fast enough, then A doesn't see anything.
 
 
 >> A5: Explain how your synchronization design provides "fairness".
@@ -165,6 +165,14 @@ struct cache_block {
     bool dirty;
 };
 
+/*
+    struct holding block_sector_t for read-ahead
+*/
+struct sector_block_to_read {
+  struct list_elem l_elem;
+  block_sector_t b_idx;
+};
+
 ---- ALGORITHMS ----
 
 >> C2: Describe how your cache replacement algorithm chooses a cache
@@ -182,7 +190,11 @@ This function is utilized by filesys_done, and also called by a periodically
 running job to perform write-behind.
 
 >> C4: Describe your implementation of read-ahead.
-TODO
+read-ahead involves following steps:
+    - identify next block to cache
+    - read this block in cache aync
+For the first step, utilize byte_to_sector in inode.c to grab next block by offset.
+For the second step, add all these blocks in a list, and read them at the same cadence as write-behind.
 
 ---- SYNCHRONIZATION ----
 
