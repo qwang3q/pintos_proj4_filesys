@@ -6,12 +6,20 @@ Cache file blocks, 64 sectors in total
     - read-ahead
 */
 
+#include "lib/kernel/list.h"
 #include "devices/block.h"
 #include "filesys/filesys.h"
 #include "devices/timer.h"
 #include "threads/synch.h"
 #include "threads/thread.h"
 #include "filesys/cache.h"
+
+struct sector_block_to_read {
+  struct list_elem l_elem;
+  block_sector_t b_idx;
+};
+
+static struct list sector_blocks_to_read = LIST_INITIALIZER(sector_blocks_to_read);
 
 void
 new_cache_block(int i_block) {
@@ -40,6 +48,13 @@ cache_maintenance_job(void *aux UNUSED) {
   while(1)
   {
       timer_sleep(TIMER_FREQ);
+
+      while(!list_empty(&sector_blocks_to_read)) {
+        struct list_elem * li_elem = list_pop_front(&sector_blocks_to_read);
+        struct sector_block_to_read * b_sector = list_entry(li_elem, struct sector_block_to_read, l_elem);
+        cache_get_block(b_sector->b_idx);
+      }
+      
       cache_flush();
   }
 }
@@ -61,6 +76,14 @@ void
 cache_write_back(int i_block) {
     block_write(fs_device, cache_all_blocks[i_block].disk_sector, &cache_all_blocks[i_block].block);
     cache_all_blocks[i_block].dirty = false;
+}
+
+void
+cache_read_ahead(block_sector_t sector_idx) {
+  struct sector_block_to_read new_block_to_read;
+  new_block_to_read.b_idx = sector_idx;
+
+  list_push_back(&sector_blocks_to_read, &new_block_to_read.l_elem);
 }
 
 void 
